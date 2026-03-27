@@ -1,2 +1,14 @@
 cours/
-docs/general_info.md
+docs/guide/
+
+# Virtual environments
+.venv/
+.tmp/
+
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Test and lint caches
+.pytest_cache/
+.ruff_cache/
