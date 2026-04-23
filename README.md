@@ -18,3 +18,5 @@ python -m tracks_solver.main
 ```
 
 Full installation instructions are available in [docs/en/installation.md](docs/en/installation.md).
+
+Detailed project documentation, including the mathematical model, code architecture, and defense-preparation notes, is available in [docs/en/project/index.md](docs/en/project/index.md).
