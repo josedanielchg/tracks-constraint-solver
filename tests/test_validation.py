@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from tracks_solver.core import TracksInstance
 from tracks_solver.core import TracksSolution, canonical_edge, parse_tracks_instance, validate_solution
 
 MANUAL_DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "tracks" / "manual"
@@ -105,3 +106,28 @@ def test_validator_rejects_fixed_information_violations() -> None:
 
     assert not result.is_valid
     assert any("Fixed edge ((2, 0), (2, 1)) is missing" in error for error in result.errors)
+
+
+def test_validator_rejects_fixed_pattern_violation() -> None:
+    instance = TracksInstance(
+        rows=2,
+        cols=2,
+        start=(0, 0),
+        end=(1, 1),
+        row_clues=(1, 2),
+        col_clues=(2, 1),
+        fixed_patterns={(0, 0): ("D",), (1, 1): ("L",)},
+    )
+    solution = TracksSolution(
+        used_cells={(0, 0), (0, 1), (1, 1)},
+        selected_edges={
+            canonical_edge((0, 0), (0, 1)),
+            canonical_edge((0, 1), (1, 1)),
+        },
+        status="optimal",
+    )
+
+    result = validate_solution(instance, solution)
+
+    assert not result.is_valid
+    assert any("Fixed pattern 'D' at (0, 0) is violated" in error for error in result.errors)

@@ -5,7 +5,13 @@ from __future__ import annotations
 import random
 from pathlib import Path
 
-from tracks_solver.core import TracksInstance, are_orthogonally_adjacent, canonical_edge, cell_in_bounds
+from tracks_solver.core import (
+    TracksInstance,
+    are_orthogonally_adjacent,
+    canonical_edge,
+    cell_in_bounds,
+    local_pattern_token,
+)
 
 
 def generate_random_path(
@@ -167,6 +173,12 @@ def serialize_tracks_instance(instance: TracksInstance) -> str:
             for first, second in sorted(instance.fixed_edges)
         )
         lines.append(f"fixed_edges={edges}")
+    if instance.fixed_patterns:
+        patterns = ";".join(
+            f"{cell[0]},{cell[1]}:{local_pattern_token(pattern)}"
+            for cell, pattern in sorted(instance.fixed_patterns.items())
+        )
+        lines.append(f"fixed_patterns={patterns}")
 
     return "\n".join(lines) + "\n"
 

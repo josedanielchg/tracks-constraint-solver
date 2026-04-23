@@ -28,6 +28,7 @@ def test_parse_manual_instance_file() -> None:
     assert instance.fixed_used == frozenset({(0, 0), (3, 3)})
     assert instance.fixed_empty == frozenset()
     assert instance.fixed_edges == frozenset()
+    assert instance.fixed_patterns == {}
 
 
 def test_parse_manual_instance_with_optional_fields() -> None:
@@ -43,6 +44,32 @@ def test_parse_manual_instance_with_optional_fields() -> None:
             canonical_edge((0, 3), (0, 4)),
         }
     )
+    assert instance.fixed_patterns == {}
+
+
+def test_parser_accepts_fixed_patterns_and_implies_edges() -> None:
+    text = "\n".join(
+        [
+            "rows=4",
+            "cols=4",
+            "start=0,0",
+            "end=3,3",
+            "row_clues=4,1,1,1",
+            "col_clues=1,1,1,4",
+            "fixed_patterns=0,0:R;0,3:DL;1,3:V",
+        ]
+    )
+
+    instance = parse_tracks_instance_text(text)
+
+    assert instance.fixed_patterns == {
+        (0, 0): ("R",),
+        (0, 3): ("D", "L"),
+        (1, 3): ("U", "D"),
+    }
+    assert canonical_edge((0, 0), (0, 1)) in instance.fixed_edges
+    assert canonical_edge((0, 3), (1, 3)) in instance.fixed_edges
+    assert canonical_edge((1, 3), (2, 3)) in instance.fixed_edges
 
 
 def test_parser_rejects_missing_required_field() -> None:
@@ -140,4 +167,38 @@ def test_parser_rejects_non_adjacent_fixed_edge() -> None:
     )
 
     with pytest.raises(TracksInstanceFormatError, match="orthogonally adjacent"):
+        parse_tracks_instance_text(text)
+
+
+def test_parser_rejects_pattern_pointing_outside_grid() -> None:
+    text = "\n".join(
+        [
+            "rows=4",
+            "cols=4",
+            "start=0,0",
+            "end=3,3",
+            "row_clues=4,1,1,1",
+            "col_clues=1,1,1,4",
+            "fixed_patterns=1,1:X",
+        ]
+    )
+
+    with pytest.raises(TracksInstanceFormatError, match="invalid local pattern"):
+        parse_tracks_instance_text(text)
+
+
+def test_parser_rejects_non_terminal_single_direction_pattern() -> None:
+    text = "\n".join(
+        [
+            "rows=4",
+            "cols=4",
+            "start=0,0",
+            "end=3,3",
+            "row_clues=4,1,1,1",
+            "col_clues=1,1,1,4",
+            "fixed_patterns=1,1:R",
+        ]
+    )
+
+    with pytest.raises(TracksInstanceFormatError, match="non-terminal pattern"):
         parse_tracks_instance_text(text)

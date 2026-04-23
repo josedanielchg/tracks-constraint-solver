@@ -6,7 +6,14 @@ from collections import deque
 from dataclasses import dataclass
 
 from .graph import build_grid_graph
-from .models import Cell, TracksInstance, TracksSolution, canonical_edge
+from .models import (
+    Cell,
+    TracksInstance,
+    TracksSolution,
+    canonical_edge,
+    local_pattern_token,
+    pattern_implied_edges,
+)
 
 
 @dataclass(slots=True, frozen=True)
@@ -100,6 +107,15 @@ def validate_solution(instance: TracksInstance, solution: TracksSolution) -> Val
     for edge in sorted(instance.fixed_edges):
         if edge not in selected_edges:
             errors.append(f"Fixed edge {edge} is missing from the solution")
+
+    for cell, pattern in instance.fixed_patterns.items():
+        expected_edges = set(pattern_implied_edges(cell, pattern))
+        actual_edges = {edge for edge in selected_edges if cell in edge}
+        if actual_edges != expected_edges:
+            errors.append(
+                f"Fixed pattern {local_pattern_token(pattern)!r} at {cell} is violated; "
+                f"expected incident edges {sorted(expected_edges)}, got {sorted(actual_edges)}"
+            )
 
     if instance.start in used_cells and instance.end in used_cells:
         visited = _reachable_used_cells(instance.start, adjacency, used_cells)

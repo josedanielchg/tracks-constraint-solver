@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .models import Cell, Edge, TracksInstance, canonical_edge
+from .models import Cell, Edge, TracksInstance, canonical_edge, normalize_local_pattern
 
 
 class TracksInstanceFormatError(ValueError):
@@ -73,6 +73,11 @@ def parse_tracks_instance_text(text: str, *, source: str = "<memory>") -> Tracks
         fixed_edges = frozenset(
             _parse_edge_list(raw_fields.get("fixed_edges", ""), field_name="fixed_edges", source=source)
         )
+        fixed_patterns = _parse_pattern_map(
+            raw_fields.get("fixed_patterns", ""),
+            field_name="fixed_patterns",
+            source=source,
+        )
     except ValueError as exc:
         raise TracksInstanceFormatError(str(exc)) from exc
 
@@ -87,6 +92,7 @@ def parse_tracks_instance_text(text: str, *, source: str = "<memory>") -> Tracks
             fixed_used=fixed_used,
             fixed_empty=fixed_empty,
             fixed_edges=fixed_edges,
+            fixed_patterns=fixed_patterns,
         )
     except ValueError as exc:
         raise TracksInstanceFormatError(f"{source}: {exc}") from exc
@@ -164,3 +170,40 @@ def _parse_edge_list(raw_value: str, *, field_name: str, source: str) -> list[Ed
         edges.append(canonical_edge(first, second))
 
     return edges
+
+
+def _parse_pattern_map(
+    raw_value: str,
+    *,
+    field_name: str,
+    source: str,
+) -> dict[Cell, tuple[str, ...]]:
+    if not raw_value.strip():
+        return {}
+
+    patterns: dict[Cell, tuple[str, ...]] = {}
+    for item in raw_value.split(";"):
+        value = item.strip()
+        if not value:
+            raise ValueError(f"{source}: field {field_name!r} contains an empty pattern item")
+
+        parts = [part.strip() for part in value.split(":", 1)]
+        if len(parts) != 2 or not all(parts):
+            raise ValueError(
+                f"{source}: pattern {value!r} in field {field_name!r} must have the form "
+                "'row,col:token'"
+            )
+
+        cell = _parse_cell(parts[0], field_name=field_name, source=source)
+        if cell in patterns:
+            raise ValueError(
+                f"{source}: field {field_name!r} contains duplicate pattern entries for cell {cell}"
+            )
+
+        try:
+            pattern = normalize_local_pattern(parts[1])
+        except ValueError as exc:
+            raise ValueError(f"{source}: invalid local pattern {parts[1]!r}: {exc}") from exc
+        patterns[cell] = pattern
+
+    return patterns
