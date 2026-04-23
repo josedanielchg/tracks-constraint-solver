@@ -28,6 +28,7 @@ class TracksViewer:
         self.height = height
         self.clue_margin = clue_margin
         self.background_color = (255, 255, 255)
+        self.fixed_cell_color = (205, 205, 205)
         self.foreground_color = (0, 0, 0)
         self.track_width = 4
 
@@ -108,6 +109,15 @@ class TracksViewer:
         )
 
     def _draw_grid(self, surface: pygame.Surface, instance: TracksInstance, layout: ViewerLayout) -> None:
+        for row, col in self._fixed_cells(instance):
+            cell_rect = pygame.Rect(
+                layout.margin_left + col * layout.cell_size + 1,
+                layout.margin_top + row * layout.cell_size + 1,
+                layout.cell_size - 1,
+                layout.cell_size - 1,
+            )
+            pygame.draw.rect(surface, self.fixed_cell_color, cell_rect)
+
         for row in range(instance.rows + 1):
             y = layout.margin_top + row * layout.cell_size
             pygame.draw.line(
@@ -214,6 +224,13 @@ class TracksViewer:
                 endpoints.append((center_x + layout.cell_size // 2, center_y))
 
         return endpoints
+
+    def _fixed_cells(self, instance: TracksInstance) -> set[tuple[int, int]]:
+        cells = set(instance.fixed_used) | set(instance.fixed_empty) | set(instance.fixed_patterns)
+        for first, second in instance.fixed_edges:
+            cells.add(first)
+            cells.add(second)
+        return cells
 
     def _cell_center(self, cell: tuple[int, int], layout: ViewerLayout) -> tuple[int, int]:
         row, col = cell

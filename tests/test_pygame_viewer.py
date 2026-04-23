@@ -35,3 +35,20 @@ def test_viewer_renders_one_frame_without_errors() -> None:
         assert surface.get_height() == 480
     finally:
         pygame.quit()
+
+
+def test_viewer_shades_fixed_cells_with_darker_background() -> None:
+    instance = parse_tracks_instance(MANUAL_DATA_DIR / "small_5x5.txt")
+    viewer = TracksViewer(width=480, height=480)
+
+    pygame.init()
+    surface = viewer.render_to_surface(instance)
+    try:
+        layout = viewer._build_layout(instance)
+        fixed_cell_center = viewer._cell_center((2, 1), layout)
+        free_cell_center = viewer._cell_center((2, 2), layout)
+
+        assert surface.get_at(fixed_cell_center)[:3] == viewer.fixed_cell_color
+        assert surface.get_at(free_cell_center)[:3] == viewer.background_color
+    finally:
+        pygame.quit()
