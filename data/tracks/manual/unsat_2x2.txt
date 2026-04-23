@@ -1,0 +1,6 @@
+rows=2
+cols=2
+start=0,0
+end=1,1
+row_clues=1,1
+col_clues=1,1
