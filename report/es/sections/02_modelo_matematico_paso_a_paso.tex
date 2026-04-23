@@ -1,0 +1,365 @@
+\section{Modelo Matemático Paso a Paso}
+\label{sec:modelo-matematico-paso-a-paso}
+
+\subsection{Enunciado del problema}
+
+Consideramos una instancia de \emph{Tracks} definida sobre una grilla rectangular de \(m\) filas y \(n\) columnas. Hay dos casillas especiales:
+\[
+    s \quad \text{y} \quad t.
+\]
+La casilla \(s\) representa el terminal de inicio, y la casilla \(t\) representa el terminal de llegada. La solución debe construir una vía de tren que conecte \(s\) con \(t\).
+
+Para que una configuración sea válida, debe cumplir todas las reglas siguientes:
+\begin{itemize}[leftmargin=2em]
+    \item la vía debe empezar en \(s\) y terminar en \(t\);
+    \item cada casilla usada debe formar parte de la vía;
+    \item las conexiones entre casillas deben ser coherentes con una vía de tren;
+    \item la vía no puede ramificarse;
+    \item no puede haber piezas sueltas ni componentes desconectadas;
+    \item no puede haber ciclos aislados que no estén conectados con los terminales;
+    \item cada fila debe usar exactamente el número de casillas indicado por su pista;
+    \item cada columna debe usar exactamente el número de casillas indicado por su pista;
+    \item las casillas pre-rellenadas o fijas deben respetarse.
+\end{itemize}
+
+Desde el punto de vista de optimización, este problema es un problema de factibilidad. La palabra ``factibilidad'' significa que queremos saber si existe al menos una solución que cumpla las restricciones. Por eso se puede escribir el modelo con el objetivo artificial
+\[
+    \min \ 0.
+\]
+Esta expresión no tiene un significado económico. Simplemente permite poner el problema dentro de la forma estándar de un modelo de programación lineal entera mixta.
+
+\subsection{De la grilla al grafo}
+
+El primer paso consiste en transformar la grilla en un grafo. Esto permite usar conceptos vistos en teoría de grafos: vértice, arista, grado, camino, ciclo y componente conexa.
+
+Cada casilla de la grilla se convierte en un vértice. Si dos casillas son vecinas horizontal o verticalmente, entonces se crea una arista entre los dos vértices correspondientes. Las casillas diagonales no son vecinas, porque una vía de Tracks solo puede pasar de una casilla a otra por los lados.
+
+Por ejemplo, si una casilla está en la posición \((i,j)\), sus posibles vecinos son:
+\[
+    (i-1,j), \quad (i+1,j), \quad (i,j-1), \quad (i,j+1),
+\]
+siempre que esas posiciones existan dentro de la grilla. Una casilla de esquina tiene menos vecinos que una casilla interior, porque está en el borde.
+
+El grafo de la grilla se escribe
+\[
+    G = (V,E),
+\]
+donde \(V\) es el conjunto de casillas y \(E\) es el conjunto de conexiones posibles entre casillas vecinas.
+
+\begin{formal}
+    \textbf{Interpretación.}
+    Resolver Tracks equivale a elegir algunos vértices y algunas aristas de \(G\). Los vértices elegidos son las casillas con vía. Las aristas elegidas son las conexiones reales entre esas casillas.
+\end{formal}
+
+\subsection{Conjuntos, índices y parámetros}
+
+Definimos el conjunto de filas como
+\[
+    R = \{1,\dots,m\},
+\]
+y el conjunto de columnas como
+\[
+    C = \{1,\dots,n\}.
+\]
+Entonces el conjunto de todas las casillas de la grilla es
+\[
+    V = R \times C.
+\]
+Esto significa que una casilla es un par \((i,j)\), donde \(i\) indica la fila y \(j\) indica la columna.
+
+El conjunto de aristas se divide en aristas horizontales y verticales:
+\[
+    E = E^H \cup E^V.
+\]
+Las aristas horizontales son
+\[
+    E^H =
+    \left\{
+        \{(i,j),(i,j+1)\} :
+        i \in R,\ j \in \{1,\dots,n-1\}
+    \right\}.
+\]
+Esta fórmula dice que hay una arista horizontal entre una casilla y la casilla que está justo a su derecha, siempre que esa casilla exista.
+
+Las aristas verticales son
+\[
+    E^V =
+    \left\{
+        \{(i,j),(i+1,j)\} :
+        i \in \{1,\dots,m-1\},\ j \in C
+    \right\}.
+\]
+Esta fórmula dice que hay una arista vertical entre una casilla y la casilla que está justo debajo, siempre que esa casilla exista.
+
+Para una casilla \(v \in V\), denotamos por \(N(v)\) el conjunto de vecinos de \(v\). También denotamos por
+\[
+    \delta(v) = \{e \in E : v \in e\}
+\]
+el conjunto de aristas incidentes a \(v\). En otras palabras, \(\delta(v)\) contiene todas las aristas que tocan la casilla \(v\). El número de aristas seleccionadas dentro de \(\delta(v)\) será el grado de la casilla en la solución.
+
+También usaremos notación para subconjuntos de casillas. Si \(S \subseteq V\), entonces
+\[
+    E(S) = \{\{u,v\} \in E : u \in S,\ v \in S\}
+\]
+es el conjunto de aristas internas a \(S\), y
+\[
+    \delta(S) = \{\{u,v\} \in E : u \in S,\ v \notin S\}
+\]
+es el conjunto de aristas que salen de \(S\). Esta última notación es útil para hablar de conectividad, porque una componente está separada del resto del grafo cuando no hay aristas seleccionadas que salgan de ella.
+
+Los terminales se denotan por
+\[
+    s \in V,
+    \qquad
+    t \in V,
+    \qquad
+    s \neq t.
+\]
+El terminal \(s\) es el inicio de la vía, y el terminal \(t\) es el final.
+
+Las pistas de filas se denotan por
+\[
+    \rho_i \in \mathbb{Z}_{+}
+    \qquad \forall i \in R,
+\]
+y las pistas de columnas por
+\[
+    \gamma_j \in \mathbb{Z}_{+}
+    \qquad \forall j \in C.
+\]
+El número \(\rho_i\) indica cuántas casillas de la fila \(i\) deben contener vía. El número \(\gamma_j\) indica cuántas casillas de la columna \(j\) deben contener vía.
+
+Como las pistas de filas y columnas cuentan las mismas casillas, se debe cumplir la condición necesaria
+\[
+    \sum_{i \in R} \rho_i
+    =
+    \sum_{j \in C} \gamma_j.
+\]
+Si esta igualdad falla, entonces la instancia no puede tener solución, porque las filas y las columnas estarían pidiendo cantidades totales diferentes de casillas con vía.
+
+Para representar información fija, definimos:
+\[
+    V^{+} \subseteq V
+\]
+como el conjunto de casillas obligadas a tener vía, y
+\[
+    V^{-} \subseteq V
+\]
+como el conjunto de casillas obligadas a estar vacías. Además, si algunas casillas tienen una forma de vía pre-rellenada, usamos el conjunto \(\mathcal{P}\). Para cada \(v \in \mathcal{P}\), el conjunto
+\[
+    P_v \subseteq \delta(v)
+\]
+indica qué aristas incidentes deben estar activadas.
+
+\subsection{Variables de decisión}
+
+La primera familia de variables indica si una casilla se usa o no. Para cada \(v \in V\), definimos
+\[
+    y_v =
+    \begin{cases}
+        1 & \text{si la casilla \(v\) contiene vía,}\\
+        0 & \text{si la casilla \(v\) está vacía.}
+    \end{cases}
+\]
+Estas variables son útiles para contar cuántas casillas se usan en cada fila y en cada columna.
+
+La segunda familia de variables indica si una conexión entre dos casillas vecinas se usa o no. Para cada arista \(e \in E\), definimos
+\[
+    x_e =
+    \begin{cases}
+        1 & \text{si la conexión \(e\) forma parte de la vía,}\\
+        0 & \text{si la conexión \(e\) no se usa.}
+    \end{cases}
+\]
+Estas variables describen la geometría real de la vía. Por ejemplo, si dos casillas vecinas contienen vía pero no hay conexión entre ellas, entonces esas dos piezas no están unidas.
+
+Finalmente, para imponer que todo esté conectado, se introducen variables auxiliares de flujo. Primero se reemplaza cada arista no dirigida por dos arcos dirigidos. El conjunto de arcos es
+\[
+    A = \{(u,v) \in V \times V : \{u,v\} \in E\}.
+\]
+Para cada arco \((u,v) \in A\), definimos una variable continua
+\[
+    f_{uv} \geq 0.
+\]
+Esta variable no representa un tren real. Es una herramienta matemática. La idea es enviar flujo desde el terminal inicial \(s\) hacia todas las casillas usadas. Si una casilla usada no puede recibir flujo desde \(s\), entonces esa casilla está desconectada y la solución no es válida.
+
+\subsection{Restricciones del modelo}
+
+\subsubsection{Restricciones de dominio}
+
+Las variables de casilla y de arista son binarias:
+\begin{equation}
+    y_v \in \{0,1\}
+    \qquad \forall v \in V.
+    \label{eq:es-domain-y}
+\end{equation}
+\begin{equation}
+    x_e \in \{0,1\}
+    \qquad \forall e \in E.
+    \label{eq:es-domain-x}
+\end{equation}
+Esto significa que no existe una casilla ``medio usada'' ni una conexión ``medio seleccionada''.
+
+Las variables de flujo son continuas y no negativas:
+\begin{equation}
+    f_{uv} \geq 0
+    \qquad \forall (u,v) \in A.
+    \label{eq:es-domain-f}
+\end{equation}
+
+\subsubsection{Restricciones de pistas de filas y columnas}
+
+Para cada fila \(i\), la suma de las casillas usadas debe ser igual a la pista \(\rho_i\):
+\begin{equation}
+    \sum_{j \in C} y_{(i,j)} = \rho_i
+    \qquad \forall i \in R.
+    \label{eq:es-row-count}
+\end{equation}
+Esta ecuación dice: ``en la fila \(i\), exactamente \(\rho_i\) casillas deben contener vía''.
+
+Para cada columna \(j\), la suma de las casillas usadas debe ser igual a la pista \(\gamma_j\):
+\begin{equation}
+    \sum_{i \in R} y_{(i,j)} = \gamma_j
+    \qquad \forall j \in C.
+    \label{eq:es-column-count}
+\end{equation}
+Esta ecuación dice lo mismo, pero para columnas. Así se traducen directamente las pistas numéricas del puzzle.
+
+\subsubsection{Restricciones de coherencia entre casillas y conexiones}
+
+Una conexión solo puede existir si las dos casillas que conecta están usadas. Para cada arista \(\{u,v\} \in E\), imponemos
+\begin{equation}
+    x_{\{u,v\}} \leq y_u,
+    \label{eq:es-edge-cell-u}
+\end{equation}
+y también
+\begin{equation}
+    x_{\{u,v\}} \leq y_v.
+    \label{eq:es-edge-cell-v}
+\end{equation}
+La primera desigualdad impide usar la conexión si \(u\) está vacío. La segunda impide usarla si \(v\) está vacío. Por tanto, una arista seleccionada siempre une dos casillas con vía.
+
+\subsubsection{Restricciones de terminales}
+
+Los terminales deben estar usados:
+\begin{equation}
+    y_s = 1,
+    \qquad
+    y_t = 1.
+    \label{eq:es-terminals-used}
+\end{equation}
+Esto es obligatorio porque la vía debe empezar en \(s\) y terminar en \(t\).
+
+Además, cada terminal debe tener exactamente una conexión seleccionada:
+\begin{equation}
+    \sum_{e \in \delta(s)} x_e = 1,
+    \qquad
+    \sum_{e \in \delta(t)} x_e = 1.
+    \label{eq:es-terminal-degree}
+\end{equation}
+Esta ecuación dice que de \(s\) sale una única vía y que a \(t\) llega una única vía. Si hubiera dos conexiones en un terminal, el terminal sería una pieza intermedia, no un extremo.
+
+\subsubsection{Restricciones de grado para las demás casillas}
+
+Para toda casilla que no sea terminal, se impone
+\begin{equation}
+    \sum_{e \in \delta(v)} x_e = 2y_v
+    \qquad \forall v \in V \setminus \{s,t\}.
+    \label{eq:es-internal-degree}
+\end{equation}
+Esta ecuación es una de las más importantes del modelo.
+
+Si \(y_v=0\), entonces el lado derecho vale \(0\), y por tanto ninguna arista incidente puede estar seleccionada. La casilla está vacía y no se conecta a nada.
+
+Si \(y_v=1\), entonces el lado derecho vale \(2\), y exactamente dos aristas incidentes deben estar seleccionadas. Eso significa que una casilla usada no terminal tiene una entrada y una salida. Puede ser una pieza recta o una curva, pero no puede ser una rama.
+
+Esta restricción elimina muchas configuraciones inválidas. Una rama necesitaría una casilla con tres conexiones. Un cruce necesitaría cuatro conexiones. Una casilla usada aislada tendría cero conexiones. Todas esas situaciones violan \eqref{eq:es-internal-degree}.
+
+\subsubsection{Restricciones para información fija}
+
+Si una casilla está fijada como usada, imponemos
+\begin{equation}
+    y_v = 1
+    \qquad \forall v \in V^{+}.
+    \label{eq:es-fixed-used}
+\end{equation}
+Si una casilla está fijada como vacía, imponemos
+\begin{equation}
+    y_v = 0
+    \qquad \forall v \in V^{-}.
+    \label{eq:es-fixed-empty}
+\end{equation}
+
+Si una casilla tiene una forma de vía pre-rellenada, se fijan las aristas correspondientes. Para cada \(v \in \mathcal{P}\), se impone
+\begin{equation}
+    x_e = 1
+    \qquad \forall e \in P_v,
+    \label{eq:es-fixed-pattern-on}
+\end{equation}
+y
+\begin{equation}
+    x_e = 0
+    \qquad \forall e \in \delta(v)\setminus P_v.
+    \label{eq:es-fixed-pattern-off}
+\end{equation}
+Así, el modelo no puede ignorar las piezas ya dadas por la instancia.
+
+\subsubsection{Restricciones de conectividad mediante flujo}
+
+Las restricciones de grado garantizan una buena estructura local, pero no garantizan por sí solas que toda la vía sea una sola pieza. Todavía podría aparecer un camino correcto de \(s\) a \(t\) más un ciclo separado en otra zona de la grilla. Ese ciclo podría respetar los grados y las pistas, pero no sería válido en Tracks.
+
+Para evitarlo, usamos una formulación de flujo. El terminal inicial \(s\) envía una unidad de flujo a cada casilla usada distinta de \(s\). El flujo solo puede pasar por aristas seleccionadas.
+
+Tomamos
+\[
+    M = |V|-1.
+\]
+Este valor es suficientemente grande porque, como máximo, hay \(|V|-1\) casillas distintas de \(s\) que pueden necesitar flujo.
+
+La capacidad del flujo se escribe así:
+\begin{equation}
+    0 \leq f_{uv} \leq M x_{\{u,v\}}
+    \qquad \forall (u,v) \in A.
+    \label{eq:es-flow-capacity}
+\end{equation}
+Esta desigualdad dice que si la arista \(\{u,v\}\) no está seleccionada, entonces \(x_{\{u,v\}}=0\), y por tanto \(f_{uv}=0\). Es decir, no puede pasar flujo por una conexión que no forma parte de la vía.
+
+En el terminal inicial \(s\), el flujo neto que sale debe ser igual al número de casillas usadas distintas de \(s\):
+\begin{equation}
+    \sum_{u \in N(s)} f_{su}
+    -
+    \sum_{u \in N(s)} f_{us}
+    =
+    \sum_{v \in V \setminus \{s\}} y_v.
+    \label{eq:es-flow-source}
+\end{equation}
+Esta ecuación dice que \(s\) es la fuente del flujo.
+
+Para toda casilla \(v \neq s\), imponemos
+\begin{equation}
+    \sum_{u \in N(v)} f_{uv}
+    -
+    \sum_{u \in N(v)} f_{vu}
+    =
+    y_v
+    \qquad \forall v \in V \setminus \{s\}.
+    \label{eq:es-flow-balance}
+\end{equation}
+Si \(v\) está usada, entonces \(y_v=1\), y la casilla debe recibir una unidad neta de flujo. Si \(v\) está vacía, entonces \(y_v=0\), y no debe consumir flujo.
+
+Estas restricciones eliminan componentes desconectadas. Si un grupo de casillas usadas estuviera separado de \(s\), no habría ninguna arista seleccionada por la cual pudiera entrar flujo. Sin embargo, esas casillas exigirían recibir flujo por \eqref{eq:es-flow-balance}. Esto es imposible. Por tanto, toda casilla usada debe estar conectada con \(s\).
+
+\subsection{Modelo completo}
+
+El modelo completo puede resumirse como
+\[
+\begin{aligned}
+    \min \quad & 0 \\
+    \text{s.a.} \quad
+    & \eqref{eq:es-row-count}-\eqref{eq:es-flow-balance}, \\
+    & y_v \in \{0,1\} && \forall v \in V, \\
+    & x_e \in \{0,1\} && \forall e \in E, \\
+    & f_{uv} \geq 0 && \forall (u,v) \in A.
+\end{aligned}
+\]
+La abreviación ``s.a.'' significa ``sujeto a''. En otras palabras, el solver busca valores para las variables que satisfagan todas las restricciones. Si los encuentra, se obtiene una solución válida del puzzle. Si no los encuentra, la instancia se declara infactible para este modelo.

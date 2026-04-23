@@ -1,0 +1,289 @@
+\section{Mathematical Model}
+\label{sec:mathematical-model}
+
+\subsection{Problem Statement}
+
+We consider an instance of \emph{Tracks} on an \(m \times n\) rectangular grid. Two distinguished cells are given: a start terminal and an end terminal. The objective is to determine whether one can construct a railway route joining these two terminals such that:
+\begin{itemize}[leftmargin=2em]
+    \item each used cell belongs to the railway route,
+    \item the route is locally consistent from one cell to the next,
+    \item the route does not branch,
+    \item no disconnected component or isolated cycle is present,
+    \item the number of used cells in each row and in each column matches the given clues,
+    \item and every fixed piece of information contained in the instance is satisfied.
+\end{itemize}
+
+The problem is therefore modeled as a pure feasibility problem. In a standard mixed-integer linear programming framework, this viewpoint can be expressed by a constant objective function,
+\[
+    \min \ 0,
+\]
+so that any feasible solution of the model corresponds to a valid solution of the puzzle.
+
+\subsection{Mathematical Abstraction of the Puzzle}
+
+The puzzle is naturally represented by a graph. Each cell of the grid is associated with a vertex, and two vertices are adjacent if and only if the corresponding cells are orthogonally adjacent. This abstraction is well suited to the puzzle because the railway route is defined by local adjacencies, while its validity depends on graph-theoretic notions such as degree, path, cycle, connected component, and connectedness.
+
+The formulation retained in this report is hybrid. Row and column clues are expressed through binary variables attached to cells, whereas continuity of the railway is described through binary variables attached to admissible edges of the grid graph. This edge-based part of the model is the natural way to express local degree conditions and the absence of branching.
+
+We assume throughout that the intended solution is a simple path from the start terminal to the end terminal. In particular, each used non-terminal cell must have degree exactly two in the selected subgraph, each terminal must have degree exactly one, and all selected cells must belong to the same connected component. Under these assumptions, extra loops and disconnected structures are forbidden.
+
+\subsection{Sets, Indices, and Parameters}
+
+Let
+\[
+    R = \{1,\dots,m\}
+    \qquad \text{and} \qquad
+    C = \{1,\dots,n\}
+\]
+be the sets of row and column indices. The set of cells is
+\[
+    V = R \times C.
+\]
+
+The grid graph is denoted by \(G=(V,E)\), where \(E\) is the set of admissible undirected edges between orthogonally adjacent cells. More precisely,
+\[
+    E = E^H \cup E^V,
+\]
+with
+\[
+    E^H =
+    \left\{
+        \{(i,j),(i,j+1)\} :
+        i \in R,\ j \in \{1,\dots,n-1\}
+    \right\},
+\]
+and
+\[
+    E^V =
+    \left\{
+        \{(i,j),(i+1,j)\} :
+        i \in \{1,\dots,m-1\},\ j \in C
+    \right\}.
+\]
+
+For a vertex \(v \in V\), we denote by \(N(v)\) the set of its neighbors in \(G\), and by
+\[
+    \delta(v) = \{e \in E : v \in e\}
+\]
+the set of edges incident to \(v\). For any subset \(S \subseteq V\), we also use the standard graph notation
+\[
+    E(S) = \{\{u,v\} \in E : u \in S,\ v \in S\}
+\]
+for the internal edge set of \(S\), and
+\[
+    \delta(S) = \{\{u,v\} \in E : u \in S,\ v \notin S\}
+\]
+for the cut induced by \(S\).
+
+The start and end terminals are denoted by
+\[
+    s \in V, \qquad t \in V, \qquad s \neq t.
+\]
+The row clues are denoted by \(\rho_i \in \mathbb{Z}_{+}\) for each \(i \in R\), and the column clues by \(\gamma_j \in \mathbb{Z}_{+}\) for each \(j \in C\). Since both families of clues count the total number of used cells, a necessary consistency condition on the data is
+\[
+    \sum_{i \in R} \rho_i = \sum_{j \in C} \gamma_j.
+\]
+
+To keep the model general, we also allow fixed information. Let \(V^{+} \subseteq V\) be the set of cells forced to belong to the route, and \(V^{-} \subseteq V\) the set of cells forced to remain empty. Moreover, let \(\mathcal{P} \subseteq V\) be the set of cells with a prescribed local track pattern. For each \(v \in \mathcal{P}\), let \(P_v \subseteq \delta(v)\) denote the set of incident edges that must be selected at \(v\). In practice, \(P_v\) contains exactly two edges for a prescribed internal track piece and exactly one edge for a prescribed terminal orientation.
+
+\subsection{Decision Variables}
+
+For each cell \(v \in V\), we introduce the binary variable
+\[
+    y_v =
+    \begin{cases}
+        1 & \text{if cell \(v\) is used by the railway route,}\\
+        0 & \text{otherwise.}
+    \end{cases}
+\]
+
+For each admissible undirected edge \(e \in E\), we introduce the binary variable
+\[
+    x_e =
+    \begin{cases}
+        1 & \text{if edge \(e\) is selected in the railway route,}\\
+        0 & \text{otherwise.}
+    \end{cases}
+\]
+
+The cell variables are sufficient to express row and column counts, while the edge variables describe the continuity of the route. In order to enforce global connectedness, we also introduce auxiliary flow variables on directed arcs. Let
+\[
+    A = \{(u,v) \in V \times V : \{u,v\} \in E\}
+\]
+be the set of arcs obtained by orienting each undirected edge in both directions. For each \((u,v) \in A\), we define a continuous variable
+\[
+    f_{uv} \geq 0,
+\]
+which represents an auxiliary flow sent from the start terminal to the other selected cells.
+
+\subsection{Constraints}
+
+\subsubsection{Domain Constraints}
+
+The variables satisfy the following domains:
+\[
+    y_v \in \{0,1\}
+    \qquad \forall v \in V,
+\]
+\[
+    x_e \in \{0,1\}
+    \qquad \forall e \in E,
+\]
+\[
+    f_{uv} \geq 0
+    \qquad \forall (u,v) \in A.
+\]
+These constraints simply express the discrete nature of the combinatorial choices and the nonnegativity of the auxiliary flow.
+
+\subsubsection{Row and Column Count Constraints}
+
+The row clues require the number of used cells in each row to be exactly prescribed:
+\begin{equation}
+    \sum_{j \in C} y_{(i,j)} = \rho_i
+    \qquad \forall i \in R.
+    \label{eq:row-count}
+\end{equation}
+Similarly, the column clues impose
+\begin{equation}
+    \sum_{i \in R} y_{(i,j)} = \gamma_j
+    \qquad \forall j \in C.
+    \label{eq:column-count}
+\end{equation}
+These equations are the direct translation of the numerical clues of the puzzle. They count occupied cells, not track segments.
+
+\subsubsection{Consistency Between Cell and Edge Variables}
+
+If an edge is selected, then both endpoint cells must be used:
+\begin{equation}
+    x_{\{u,v\}} \leq y_u
+    \qquad \forall \{u,v\} \in E,
+    \label{eq:edge-use-u}
+\end{equation}
+\begin{equation}
+    x_{\{u,v\}} \leq y_v
+    \qquad \forall \{u,v\} \in E.
+    \label{eq:edge-use-v}
+\end{equation}
+These inequalities exclude geometrically inconsistent situations in which a track connection would enter a cell not used by the route.
+
+\subsubsection{Degree Constraints and Path Structure}
+
+The terminals must belong to the route:
+\begin{equation}
+    y_s = 1,
+    \qquad
+    y_t = 1.
+    \label{eq:terminal-used}
+\end{equation}
+Since they are the endpoints of the railway path, they must have degree exactly one in the selected subgraph:
+\begin{equation}
+    \sum_{e \in \delta(s)} x_e = 1,
+    \qquad
+    \sum_{e \in \delta(t)} x_e = 1.
+    \label{eq:terminal-degree}
+\end{equation}
+
+Every other used cell must have degree exactly two, whereas an unused cell must have degree zero:
+\begin{equation}
+    \sum_{e \in \delta(v)} x_e = 2y_v
+    \qquad \forall v \in V \setminus \{s,t\}.
+    \label{eq:internal-degree}
+\end{equation}
+This family of constraints is fundamental. It ensures local continuity of the route, forbids branching by excluding degree three or four, and prevents isolated used cells by excluding degree one away from the terminals. Nevertheless, degree conditions alone do not prevent the existence of several disconnected components; a global connectivity mechanism is still required.
+
+\subsubsection{Fixed and Pre-filled Information}
+
+Any cell prescribed as used is fixed by
+\begin{equation}
+    y_v = 1
+    \qquad \forall v \in V^{+},
+    \label{eq:fixed-used}
+\end{equation}
+and any cell prescribed as empty is fixed by
+\begin{equation}
+    y_v = 0
+    \qquad \forall v \in V^{-}.
+    \label{eq:fixed-empty}
+\end{equation}
+
+If the local track pattern at a cell \(v \in \mathcal{P}\) is prescribed, then the corresponding incident edges are enforced by
+\begin{equation}
+    x_e = 1
+    \qquad \forall v \in \mathcal{P},\ \forall e \in P_v,
+    \label{eq:fixed-pattern-on}
+\end{equation}
+\begin{equation}
+    x_e = 0
+    \qquad \forall v \in \mathcal{P},\ \forall e \in \delta(v)\setminus P_v.
+    \label{eq:fixed-pattern-off}
+\end{equation}
+These constraints make the formulation compatible with instances containing partial information, which is common in practical puzzle descriptions.
+
+\subsubsection{Connectivity Constraints}
+
+The previous constraints guarantee local validity, but they still allow an \(s\)-\(t\) path together with an additional disconnected cycle. To eliminate such invalid configurations, we impose connectedness by means of a single-commodity flow formulation. The idea is classical: the start terminal sends one unit of flow to every other selected cell, and flow can only traverse selected edges.
+
+Let
+\[
+    M = |V|-1
+\]
+be a valid capacity bound. For every arc \((u,v) \in A\), flow is allowed only if the underlying undirected edge is selected:
+\begin{equation}
+    0 \leq f_{uv} \leq M x_{\{u,v\}}
+    \qquad \forall (u,v) \in A.
+    \label{eq:flow-capacity}
+\end{equation}
+
+At the source \(s\), the net outgoing flow equals the number of selected cells distinct from \(s\):
+\begin{equation}
+    \sum_{u \in N(s)} f_{su}
+    -
+    \sum_{u \in N(s)} f_{us}
+    =
+    \sum_{v \in V \setminus \{s\}} y_v.
+    \label{eq:flow-source}
+\end{equation}
+For every other cell \(v \neq s\), the net incoming flow must equal one unit if the cell is used, and zero otherwise:
+\begin{equation}
+    \sum_{u \in N(v)} f_{uv}
+    -
+    \sum_{u \in N(v)} f_{vu}
+    =
+    y_v
+    \qquad \forall v \in V \setminus \{s\}.
+    \label{eq:flow-balance}
+\end{equation}
+
+These constraints ensure that every selected cell is reachable from the start terminal by a chain of selected edges. Indeed, if a subset of selected cells were disconnected from \(s\), then no flow could enter it because of \eqref{eq:flow-capacity}, while \eqref{eq:flow-balance} would require a positive net inflow into that component. This contradiction excludes disconnected components and isolated cycles.
+
+\subsubsection{Interpretation of the Path Constraints}
+
+Taken together, the degree and connectivity constraints characterize the required railway structure. The terminals \(s\) and \(t\) are the only selected vertices of degree one, every other selected vertex has degree two, and all selected vertices belong to one connected component. Hence the selected subgraph is a connected graph with exactly two vertices of odd degree. In this context, the only possible structure is a simple path joining \(s\) to \(t\). Therefore, branches, detached components, and supplementary loops are all excluded by construction.
+
+\subsection{Objective Function and Feasibility Viewpoint}
+
+The puzzle is not associated with a meaningful cost to minimize. The role of the model is only to determine whether the set of constraints admits a feasible solution. For that reason, the complete formulation can be written as
+\[
+\begin{aligned}
+    \min \quad & 0 \\
+    \text{s.t.} \quad
+    & \eqref{eq:row-count}-\eqref{eq:flow-balance}, \\
+    & y_v \in \{0,1\} && \forall v \in V, \\
+    & x_e \in \{0,1\} && \forall e \in E, \\
+    & f_{uv} \geq 0 && \forall (u,v) \in A.
+\end{aligned}
+\]
+Any feasible solution to this mixed-integer linear model is a valid solution of the corresponding Tracks instance.
+
+\subsection{Modeling Remarks and Interpretation}
+
+The formulation deliberately separates the two main aspects of the puzzle. The variables \(y_v\) encode occupancy information and make it possible to express the row and column clues in a compact way. The variables \(x_e\) describe the actual geometry of the railway route through adjacency choices and degree constraints. The flow variables then provide the global certificate that the selected subgraph is connected.
+
+An alternative to the flow formulation would be a family of cut constraints of the form
+\[
+    \sum_{e \in \delta(S)} x_e \geq y_v
+    \qquad \forall S \subseteq V \setminus \{s\},\ \forall v \in S,
+\]
+which enforces that every selected subset not containing the source is connected to the rest of the route. Such constraints are valid, but they are exponential in number and are usually handled by separation procedures or lazy constraints. For a first rigorous formulation, the flow-based model is more direct and easier to integrate into a standard MILP solver.
+
+This mathematical model therefore provides a precise and rigorous description of Tracks as a graph-based feasibility problem. It also establishes the conceptual basis for the solver that will later be implemented in Python, while keeping the present stage of the report focused on modeling rather than implementation.

@@ -1,0 +1,7 @@
+\section{Introduction}
+
+Tracks is a logic puzzle defined on a rectangular grid. Two terminals are prescribed on the board, and the objective is to construct a railway route connecting them. The solution must satisfy two families of conditions simultaneously. On the one hand, the route must be locally and globally consistent: neighboring track pieces must match, the structure must not branch, and the final railway must form a single valid route between the prescribed terminals. On the other hand, the number of cells occupied by the route in each row and in each column must match the clues written on the boundary of the grid.
+
+From the perspective of operations research, Tracks is naturally interpreted as a discrete feasibility problem on a graph. The combinatorial difficulty does not only come from counting constraints, but also from the global structure of the route. Local consistency constraints are not sufficient, since they allow disconnected components or isolated cycles. A rigorous model must therefore combine binary selection variables, degree conditions, and explicit connectivity constraints.
+
+The report begins with this mathematical viewpoint. The grid is first represented as a graph, then the puzzle rules are translated into a mixed-integer linear formulation. This provides a precise feasibility model that will later serve as the foundation for the Python implementation of the solver.

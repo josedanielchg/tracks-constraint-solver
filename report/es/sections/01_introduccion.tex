@@ -1,0 +1,26 @@
+\section{Introducción}
+
+El objetivo de este reporte es explicar el puzzle \emph{Tracks} desde el punto de vista de la investigación operativa. Antes de hablar de programación, de Python o de visualización con Pygame, se necesita una descripción matemática clara del problema. Esta descripción es importante porque el solver que se implementará después debe resolver exactamente el problema definido por el modelo, y no una aproximación informal de las reglas.
+
+En Tracks se tiene una grilla rectangular. En la grilla aparecen dos terminales: un punto de salida y un punto de llegada. La solución consiste en construir una vía de tren continua que conecte esos dos terminales. Además, en el borde de la grilla aparecen números. Cada número de fila indica cuántas casillas de esa fila deben contener vía. Cada número de columna indica cuántas casillas de esa columna deben contener vía.
+
+La dificultad del puzzle no está solamente en contar casillas. También hay que garantizar que las piezas de vía formen un único camino correcto. Por ejemplo, una solución no puede tener una rama, porque una vía de Tracks no se divide en dos. Tampoco puede tener un ciclo separado, aunque ese ciclo respete los números de filas y columnas. La solución debe ser una sola ruta que empieza en el terminal inicial y termina en el terminal final.
+
+Esta situación se modela de forma natural con grafos. En el vocabulario del curso, un grafo se escribe normalmente como
+\[
+    G = (V,E),
+\]
+donde \(V\) es el conjunto de vértices y \(E\) es el conjunto de aristas. Para Tracks, los vértices serán las casillas de la grilla, y las aristas serán las posibles conexiones entre casillas vecinas. Así, una vía de tren se convierte en un subconjunto de vértices y aristas del grafo.
+
+El modelo que se presenta en este reporte es un modelo de factibilidad. Esto significa que no buscamos minimizar un coste real ni maximizar una ganancia. Buscamos responder a la pregunta:
+\[
+    \text{¿existe una solución que respete todas las reglas del puzzle?}
+\]
+Para escribirlo como un modelo lineal entero mixto, se puede usar una función objetivo constante, por ejemplo \(\min 0\). En ese caso, el solver no intenta mejorar un valor numérico; simplemente intenta encontrar una solución que satisfaga todas las restricciones.
+
+El reporte está escrito de manera progresiva. Primero se explica cómo pasar de la grilla a un grafo. Después se definen los conjuntos, los parámetros y las variables de decisión. Luego se escriben las restricciones una por una, explicando qué regla del puzzle representa cada bloque. Finalmente, se interpreta el modelo completo y se explica por qué elimina configuraciones inválidas como ramas, ciclos aislados o componentes desconectadas.
+
+\begin{formal}
+    \textbf{Idea principal.}
+    Tracks se puede ver como un problema de selección de subgrafo. Elegimos qué casillas se usan y qué conexiones entre casillas se activan. Las restricciones obligan a que esa selección forme un único camino desde el terminal inicial hasta el terminal final.
+\end{formal}

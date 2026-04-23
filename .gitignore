@@ -12,3 +12,9 @@ __pycache__/
 # Test and lint caches
 .pytest_cache/
 .ruff_cache/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc

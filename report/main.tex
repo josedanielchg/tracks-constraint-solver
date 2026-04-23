@@ -1,0 +1,137 @@
+\documentclass[11pt,a4paper]{article}
+
+% ----------------------------------------------------
+% ESSENTIAL PACKAGES
+% ----------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath, amssymb}
+\usepackage{siunitx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{physics}
+\usepackage{titlesec}
+\usepackage[strict]{changepage}
+\usepackage{framed}
+\usepackage{hyperref}
+
+% ----------------------------------------------------
+% LAYOUT
+% ----------------------------------------------------
+\geometry{margin=2.5cm}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+\setlength{\headheight}{14pt}
+
+% ----------------------------------------------------
+% ENSTA COLORS
+% ----------------------------------------------------
+\definecolor{enstaBleuFonce}{HTML}{003366}
+\definecolor{enstaBleuClair}{HTML}{0073CF}
+\definecolor{formalshade}{rgb}{0.95,0.95,1}
+
+% ----------------------------------------------------
+% LINKS
+% ----------------------------------------------------
+\hypersetup{
+    colorlinks=true,
+    linkcolor=enstaBleuFonce,
+    urlcolor=blue,
+    citecolor=gray
+}
+
+% ----------------------------------------------------
+% SECTION STYLES
+% ----------------------------------------------------
+\titleformat{\section}[block]
+  {\normalfont\Large\bfseries\color{enstaBleuFonce}}
+  {\thesection}{1em}{}
+  [\vspace{0.3em}\titlerule\color{enstaBleuFonce}\vspace{0.3em}]
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{enstaBleuClair}}
+  {\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{black!70}}
+  {\thesubsubsection}{1em}{}
+
+% ----------------------------------------------------
+% HEADERS AND FOOTERS
+% ----------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{ENSTA Paris}
+\fancyhead[R]{RO03 Final Project -- Tracks}
+\fancyfoot[C]{\thepage}
+
+% ----------------------------------------------------
+% FORMAL BOX ENVIRONMENT
+% ----------------------------------------------------
+\newenvironment{formal}{%
+\def\FrameCommand{%
+  \hspace{1pt}%
+  {\color{enstaBleuFonce}\vrule width 2pt}%
+  {\color{formalshade}\vrule width 4pt}%
+  \colorbox{formalshade}%
+}%
+\MakeFramed{\advance\hsize-\width\FrameRestore}%
+\noindent\hspace{-4.55pt}%
+\begin{adjustwidth}{}{7pt}%
+\vspace{4pt}%
+}{%
+\vspace{4pt}\end{adjustwidth}\endMakeFramed%
+}
+
+% ----------------------------------------------------
+% DOCUMENT
+% ----------------------------------------------------
+\begin{document}
+
+\pagenumbering{gobble}
+
+\begin{titlepage}
+    \centering
+    \vspace*{4cm}
+
+    \framebox{\parbox{0.6\textwidth}{\centering
+        \vspace{1cm}
+        \textbf{LOGO ENSTA} \\
+        (Image placeholder)
+        \vspace{1cm}
+    }}\par\vspace{0.5cm}
+
+    \vspace{0.5cm}
+    {\Large RO03 -- Games, Graphs and Operations Research \par}
+    \vspace{0.2cm}
+    {\huge\bfseries Final Project Report \par}
+    \vspace{0.7cm}
+    {\Large\bfseries Tracks: Integer Programming Formulation and Resolution Approach \par}
+    \vspace{2.5cm}
+    {\Large Team Members \par}
+    {\Large CHACON Jose \par}
+    {\Large FLORIDO Santiago \par}
+    \vspace{1.5cm}
+    \textbf{Topic:} Mathematical modeling of the Tracks puzzle \par
+    \vfill
+    École Nationale des techniques avancées\\
+    April 2026 \par
+\end{titlepage}
+
+\clearpage
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\input{sections/01_introduction}
+\input{sections/02_mathematical_model}
+
+\end{document}

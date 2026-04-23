@@ -1,0 +1,108 @@
+\section{Interpretación del Modelo}
+\label{sec:interpretacion-modelo}
+
+\subsection{Por qué el modelo produce un camino}
+
+El modelo no dice directamente ``construir un camino'' con una sola restricción. En vez de eso, combina varias familias de restricciones que, juntas, obligan a que la solución sea un camino.
+
+Primero, los terminales \(s\) y \(t\) tienen grado uno:
+\[
+    \sum_{e \in \delta(s)} x_e = 1,
+    \qquad
+    \sum_{e \in \delta(t)} x_e = 1.
+\]
+Esto significa que son los dos extremos de la vía.
+
+Segundo, toda casilla usada que no sea terminal tiene grado dos:
+\[
+    \sum_{e \in \delta(v)} x_e = 2y_v.
+\]
+Una casilla de grado dos no puede ser una rama. Solo puede tener una conexión de entrada y una conexión de salida. Si las dos conexiones están en lados opuestos, la pieza es recta. Si están en lados perpendiculares, la pieza es una curva.
+
+Tercero, las restricciones de flujo obligan a que todas las casillas usadas estén conectadas con \(s\). Por tanto, no puede existir una parte de la vía separada del camino principal.
+
+La combinación de estas tres ideas es la clave:
+\begin{itemize}[leftmargin=2em]
+    \item grado uno en los terminales;
+    \item grado dos en las casillas internas;
+    \item una sola componente conexa.
+\end{itemize}
+Con esas condiciones, la estructura seleccionada no puede ser otra cosa que un camino desde \(s\) hasta \(t\).
+
+\subsection{Qué configuraciones inválidas quedan eliminadas}
+
+El modelo elimina varios tipos de errores típicos.
+
+\subsubsection{Ramas}
+
+Una rama aparece cuando una casilla se conecta con tres o más casillas vecinas. En un grafo, eso corresponde a un vértice de grado al menos tres. El modelo lo prohíbe porque las casillas internas usadas tienen grado exactamente dos, y los terminales tienen grado exactamente uno.
+
+\subsubsection{Casillas aisladas}
+
+Una casilla aislada sería una casilla marcada como vía, pero sin conexiones. Si \(y_v=1\) y \(v\) no es terminal, la restricción
+\[
+    \sum_{e \in \delta(v)} x_e = 2y_v
+\]
+obliga a tener exactamente dos conexiones. Por tanto, una casilla usada no puede quedar sola.
+
+\subsubsection{Ciclos aislados}
+
+Un ciclo aislado puede respetar las restricciones de grado, porque cada casilla del ciclo tendría grado dos. Por eso las restricciones locales no bastan. La formulación de flujo resuelve este problema: un ciclo aislado no puede recibir flujo desde \(s\), así que no puede existir en una solución factible.
+
+\subsubsection{Componentes desconectadas}
+
+Una componente desconectada es un grupo de casillas unidas entre sí, pero separadas del resto de la vía. En el curso, una componente conexa se entiende como un subgrafo conexo maximal. Tracks exige que las casillas usadas formen una única componente conexa. El flujo impone exactamente esa idea, porque cada casilla usada debe ser alcanzable desde \(s\).
+
+\subsection{Relación entre las pistas y la geometría}
+
+Las pistas de filas y columnas solo cuentan casillas. No dicen cómo se conectan esas casillas. Por ejemplo, dos configuraciones pueden usar el mismo número de casillas en cada fila y columna, pero una puede formar una vía válida y la otra puede estar desconectada.
+
+Por eso el modelo separa dos niveles:
+\begin{itemize}[leftmargin=2em]
+    \item las variables \(y_v\) controlan cuántas casillas se usan;
+    \item las variables \(x_e\) controlan cómo se conectan esas casillas.
+\end{itemize}
+
+Las restricciones de filas y columnas usan solamente las variables \(y_v\):
+\[
+    \sum_{j \in C} y_{(i,j)} = \rho_i,
+    \qquad
+    \sum_{i \in R} y_{(i,j)} = \gamma_j.
+\]
+Las restricciones de grado y conectividad usan las variables \(x_e\) y \(f_{uv}\). Esta separación hace que el modelo sea más claro: primero se decide dónde hay vía, y después se garantiza que esas casillas estén conectadas correctamente.
+
+\subsection{Por qué no se necesitan variables de tipo de pieza}
+
+Una posible forma de modelar Tracks sería crear una variable para cada tipo de pieza: recta horizontal, recta vertical, curva arriba-derecha, curva arriba-izquierda, etc. Ese enfoque es posible, pero no es necesario.
+
+En este modelo, la forma de la pieza se deduce de las aristas seleccionadas alrededor de la casilla. Si una casilla tiene seleccionadas las aristas izquierda y derecha, entonces es una pieza recta horizontal. Si tiene seleccionadas las aristas arriba y abajo, es una pieza recta vertical. Si tiene seleccionadas una arista vertical y una horizontal, es una curva.
+
+Por tanto, las variables \(x_e\) contienen suficiente información para reconstruir la pieza gráfica después. Esto es útil para la implementación futura: el solver puede devolver las aristas seleccionadas, y la parte visual puede traducirlas en dibujos de vías.
+
+\subsection{Comentarios sobre otras formulaciones posibles}
+
+La formulación con flujo no es la única manera de imponer conectividad. Otra opción consiste en usar restricciones de corte. Para cualquier subconjunto \(S \subseteq V\setminus \{s\}\), se puede imponer una restricción del tipo
+\[
+    \sum_{e \in \delta(S)} x_e \geq y_v
+    \qquad \forall v \in S.
+\]
+La idea es la siguiente: si dentro de \(S\) hay una casilla usada, entonces debe existir al menos una arista seleccionada que salga de \(S\). Si no existe tal arista, entonces \(S\) estaría desconectado del origen.
+
+Estas restricciones son matemáticamente correctas, pero hay muchísimos subconjuntos \(S\). Por eso, en la práctica, no se suelen escribir todas desde el principio. Se pueden añadir progresivamente mediante cortes o restricciones perezosas cuando el solver encuentra una solución desconectada. Esta idea es parecida a las restricciones de eliminación de subtours en problemas de rutas.
+
+Para este proyecto, el modelo con flujo es una primera formulación más directa. Tiene más variables continuas, pero es más fácil de explicar, implementar y verificar. Además, expresa claramente la propiedad más importante: todas las casillas usadas deben estar conectadas con el terminal inicial.
+
+\subsection{Resumen final del modelado}
+
+El puzzle Tracks se modela como un problema de factibilidad sobre un grafo de grilla. Las casillas son vértices, las adyacencias ortogonales son aristas, y la vía buscada es un subgrafo seleccionado.
+
+El modelo usa:
+\begin{itemize}[leftmargin=2em]
+    \item variables binarias \(y_v\) para decidir qué casillas contienen vía;
+    \item variables binarias \(x_e\) para decidir qué conexiones entre casillas se usan;
+    \item variables de flujo \(f_{uv}\) para certificar que no hay componentes desconectadas.
+\end{itemize}
+
+Cada familia de restricciones tiene un papel preciso. Las pistas de filas y columnas controlan el número de casillas usadas. Las restricciones de coherencia impiden conectar casillas vacías. Las restricciones de grado imponen la forma local de una vía sin ramas. Las restricciones de información fija respetan las pistas pre-rellenadas. Las restricciones de flujo garantizan que toda la solución forme una sola componente conexa.
+
+Así, una solución factible del modelo corresponde exactamente a una solución válida del puzzle bajo las reglas descritas. Este modelo será la base matemática para la implementación posterior del solver en Python.
