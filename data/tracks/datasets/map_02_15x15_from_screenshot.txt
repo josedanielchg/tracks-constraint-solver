@@ -1,0 +1,11 @@
+# Imported from screenshot.
+# The screenshot reconstruction safely identifies the visible clue cells.
+# Their exact local orientation is not fixed here, only the fact that these
+# cells belong to the railway path.
+rows=15
+cols=15
+start=11,0
+end=14,13
+row_clues=6,10,10,11,10,15,12,7,6,5,9,6,3,1,2
+col_clues=12,12,10,8,6,9,8,5,6,5,4,8,10,7,3
+fixed_used=1,2;1,4;1,7;2,0;2,9;3,7;3,8;4,2;4,3;4,6;4,12;5,8;5,10;6,14;7,6;7,11

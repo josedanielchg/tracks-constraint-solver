@@ -1,0 +1,10 @@
+# Imported from screenshot.
+# Pattern tokens use U, D, L, R for incident directions.
+# H means a horizontal piece (LR). V means a vertical piece (UD).
+rows=8
+cols=8
+start=3,0
+end=7,6
+row_clues=6,6,8,8,1,2,2,2
+col_clues=4,4,4,4,4,4,5,6
+fixed_patterns=0,3:H;1,1:UR;3,0:U;3,3:H;3,4:UL;7,6:R
