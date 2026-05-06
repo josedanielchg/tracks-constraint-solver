@@ -1,0 +1,9 @@
+solveTime = 0.036037099998793565
+isOptimal = False
+status = 'infeasible'
+rows = 2
+cols = 2
+numUsedCells = 0
+validationPassed = False
+usedCells = []
+selectedEdges = []

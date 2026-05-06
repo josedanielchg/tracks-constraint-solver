@@ -1,0 +1,5 @@
+instance_name,rows,cols,solveTime,isOptimal,status,numUsedCells,validationPassed
+instanceTest.txt,4,4,0.03794290000223555,True,optimal,7,True
+small_4x4.txt,4,4,0.04017720000410918,True,optimal,7,True
+small_5x5.txt,5,5,0.0452272999973502,True,optimal,9,True
+unsat_2x2.txt,2,2,0.036037099998793565,False,infeasible,0,False
