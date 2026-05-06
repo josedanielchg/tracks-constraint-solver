@@ -1,0 +1,46 @@
+\section{Computational Results and Course Compliance}
+\label{sec:results}
+
+The first experimental objective is to verify that the complete course-style
+workflow is available for Tracks. A manual instance named
+\texttt{instanceTest.txt} is provided, and the solver can also be applied to
+the existing small manual instances. For each instance, the result file records
+at least the variables \texttt{solveTime} and \texttt{isOptimal}, matching the
+format expected by the course example.
+
+\begin{table}[h]
+\centering
+\caption{Representative run of the exact MILP solver on manual Tracks instances.}
+\label{tab:manual-results}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Instance} & \textbf{Rows} & \textbf{Cols} & \textbf{Time (s)} & \textbf{Optimal} \\
+\midrule
+\texttt{instanceTest.txt} & 4 & 4 & 0.038 & yes \\
+\texttt{small\_4x4.txt} & 4 & 4 & 0.040 & yes \\
+\texttt{small\_5x5.txt} & 5 & 5 & 0.045 & yes \\
+\texttt{unsat\_2x2.txt} & 2 & 2 & 0.036 & no \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The first three instances are feasible and are solved to optimality by the
+MILP backend. The fourth instance is intentionally inconsistent and is reported
+as infeasible. This is a useful check because it confirms that the solver does
+not merely return a route whenever it is called; it also detects impossible
+clue systems.
+
+The generated course-style result files are stored in
+\texttt{res/tracks/cbc}. A CSV summary is also produced for easier inspection,
+and a LaTeX table can be generated automatically from the same result files.
+The exact numerical times in Table~\ref{tab:manual-results} are machine
+dependent, but the important point for this stage is the structure of the
+workflow: every instance can be read, solved, validated, displayed, and
+summarized in a reusable result format.
+
+From the point of view of the project statement, the remaining experimental
+work for Tracks is therefore not the construction of the model, but the
+extension of the benchmark set. Larger generated instances and screenshot
+instances can be solved with the same pipeline, then summarized with the same
+result-table function. These experiments will allow the final report to discuss
+how solving time changes with grid size and clue structure.

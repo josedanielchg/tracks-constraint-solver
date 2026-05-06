@@ -1,0 +1,78 @@
+\section{Implementation Methodology}
+\label{sec:methodology}
+
+The implementation follows the mathematical model introduced in
+Section~\ref{sec:mathematical-model}. The objective is not to build an
+independent program with unrelated data structures, but to translate each
+mathematical object into a clear software object. The grid cells, admissible
+edges, terminal cells, row clues, column clues, and fixed information are first
+stored in a normalized instance representation. From this representation, the
+solver constructs the grid graph and then builds the mixed-integer model.
+
+\subsection{Project Structure}
+
+The code is organized around four main components. The core package contains
+the data model, the parser, graph construction utilities, ASCII display tools,
+and the independent validator. The solver package contains the MILP
+implementation and the functions used to solve either a single instance or a
+collection of instances. The generation package creates random feasible
+instances by first generating a simple path and then deriving the row and
+column clues from that path. Finally, the user-interface package contains the
+Pygame viewer used to display an instance and a computed solution.
+
+This separation is important because the solver is not trusted alone. Once the
+MILP backend returns a solution, the independent validator checks the puzzle
+rules again: row and column counts, terminal degrees, internal degrees, fixed
+information, connectivity, and absence of disconnected structures. This second
+verification step is useful both for debugging and for defending the
+correctness of the implementation.
+
+\subsection{Course-Compatible Workflow}
+
+The course reference implementation is written in Julia and exposes functions
+such as \texttt{readInputFile}, \texttt{cplexSolve},
+\texttt{displayGrid}, \texttt{displaySolution},
+\texttt{generateDataSet}, \texttt{solveDataSet}, and
+\texttt{resultsArray}. The present project is implemented in Python, but an
+equivalent workflow is provided in the module
+\texttt{tracks\_solver.course\_workflow}. The names are intentionally close to
+the course example so that the same sequence of operations can be explained
+during the defense.
+
+The function \texttt{readInputFile} reads a text instance and returns a
+normalized Tracks instance. The function \texttt{cplexSolve} is the
+course-named wrapper around the exact MILP solver. Internally, the backend is
+PuLP with CBC rather than CPLEX, but it returns the same kind of information:
+whether an optimal feasible solution was found, the resolution time, and the
+solution object. The display functions print an unresolved or solved grid in
+the terminal. The dataset functions generate instances, solve them, and produce
+result files containing the variables \texttt{solveTime} and
+\texttt{isOptimal}, as required by the course workflow.
+
+\subsection{Instance Generation}
+
+Random instance generation is performed constructively. Instead of generating
+arbitrary row and column clues that may be infeasible, the generator first
+builds a simple path between the start and end terminals. The row and column
+clues are then computed from the cells visited by that path. This guarantees
+that the generated instance has at least one feasible solution.
+
+This strategy does not guarantee uniqueness, and uniqueness is not required by
+the project statement. It is nevertheless appropriate for benchmarking because
+it provides controlled feasible instances of different sizes without spending
+time rejecting inconsistent random clues.
+
+\subsection{Callback and Heuristic Requirements}
+
+Tracks has difficulty level \(4\) in the project statement. The callback
+requirement is stated for games of difficulty at least \(6\), where one rule is
+difficult to encode directly with a polynomial number of linear constraints.
+For Tracks, the connectivity rule is handled directly in the MILP through the
+single-commodity flow formulation described in
+Section~\ref{sec:mathematical-model}. Therefore, no callback is required in
+this repository.
+
+Similarly, the heuristic solver is required only for the most difficult game
+of the two-game project. Since Tracks is the easier game and the harder game is
+handled in the companion Galaxies project, the present implementation focuses
+on the exact Tracks solver, validation, generation, and display workflow.
