@@ -1,0 +1,6 @@
+rows=4
+cols=4
+start=0,0
+end=3,3
+row_clues=4,1,1,1
+col_clues=1,1,1,4
