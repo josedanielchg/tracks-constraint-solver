@@ -1,138 +1,52 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[conference]{IEEEtran}
 
-% ----------------------------------------------------
-% PAQUETES ESENCIALES
-% ----------------------------------------------------
 \usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
-\usepackage{geometry}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
-\usepackage{amsmath, amssymb}
-\usepackage{siunitx}
-\usepackage{caption}
-\usepackage{subcaption}
 \usepackage{booktabs}
-\usepackage{float}
-\usepackage{xcolor}
-\usepackage{fancyhdr}
 \usepackage{enumitem}
-\usepackage{physics}
-\usepackage{titlesec}
 \usepackage[strict]{changepage}
 \usepackage{framed}
 \usepackage{hyperref}
+\hypersetup{hidelinks}
 
-% ----------------------------------------------------
-% CONFIGURACION DE PAGINA
-% ----------------------------------------------------
-\geometry{margin=2.5cm}
-\setlength{\parskip}{0.5em}
-\setlength{\parindent}{0pt}
-\setlength{\headheight}{14pt}
-
-% ----------------------------------------------------
-% COLORES ENSTA
-% ----------------------------------------------------
-\definecolor{enstaBleuFonce}{HTML}{003366}
-\definecolor{enstaBleuClair}{HTML}{0073CF}
-\definecolor{formalshade}{rgb}{0.95,0.95,1}
-
-% ----------------------------------------------------
-% ENLACES
-% ----------------------------------------------------
-\hypersetup{
-    colorlinks=true,
-    linkcolor=enstaBleuFonce,
-    urlcolor=blue,
-    citecolor=gray
-}
-
-% ----------------------------------------------------
-% ESTILO DE SECCIONES
-% ----------------------------------------------------
-\titleformat{\section}[block]
-  {\normalfont\Large\bfseries\color{enstaBleuFonce}}
-  {\thesection}{1em}{}
-  [\vspace{0.3em}\titlerule\color{enstaBleuFonce}\vspace{0.3em}]
-
-\titleformat{\subsection}
-  {\normalfont\large\bfseries\color{enstaBleuClair}}
-  {\thesubsection}{1em}{}
-
-\titleformat{\subsubsection}
-  {\normalfont\normalsize\bfseries\color{black!70}}
-  {\thesubsubsection}{1em}{}
-
-% ----------------------------------------------------
-% ENCABEZADOS Y PIES DE PAGINA
-% ----------------------------------------------------
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[L]{ENSTA Paris}
-\fancyhead[R]{RO03 Proyecto Final -- Tracks}
-\fancyfoot[C]{\thepage}
-
-% ----------------------------------------------------
-% ENTORNO FORMAL
-% ----------------------------------------------------
 \newenvironment{formal}{%
 \def\FrameCommand{%
   \hspace{1pt}%
-  {\color{enstaBleuFonce}\vrule width 2pt}%
-  {\color{formalshade}\vrule width 4pt}%
-  \colorbox{formalshade}%
+  {\vrule width 1.5pt}%
+  \hspace{6pt}%
 }%
 \MakeFramed{\advance\hsize-\width\FrameRestore}%
-\noindent\hspace{-4.55pt}%
-\begin{adjustwidth}{}{7pt}%
-\vspace{4pt}%
+\noindent\hspace{-4pt}%
+\begin{adjustwidth}{}{4pt}%
 }{%
-\vspace{4pt}\end{adjustwidth}\endMakeFramed%
+\end{adjustwidth}\endMakeFramed%
 }
 
-% ----------------------------------------------------
-% DOCUMENTO
-% ----------------------------------------------------
+\title{Tracks: modelado paso a paso como problema de programaci\'on lineal entera}
+\author{
+\IEEEauthorblockN{CHACON Jose}
+\IEEEauthorblockA{\textit{RO03, Juegos, grafos e investigaci\'on operativa}\\
+\textit{ENSTA Paris}\\
+Palaiseau, France}
+\and
+\IEEEauthorblockN{FLORIDO Santiago}
+\IEEEauthorblockA{\textit{RO03, Juegos, grafos e investigaci\'on operativa}\\
+\textit{ENSTA Paris}\\
+Palaiseau, France}
+}
+
 \begin{document}
-
-\pagenumbering{gobble}
-
-\begin{titlepage}
-    \centering
-    \vspace*{4cm}
-
-    \framebox{\parbox{0.6\textwidth}{\centering
-        \vspace{1cm}
-        \textbf{LOGO ENSTA} \\
-        (Marcador de imagen)
-        \vspace{1cm}
-    }}\par\vspace{0.5cm}
-
-    \vspace{0.5cm}
-    {\Large RO03 -- Juegos, grafos e investigación operativa \par}
-    \vspace{0.2cm}
-    {\huge\bfseries Reporte explicativo del proyecto \par}
-    \vspace{0.7cm}
-    {\Large\bfseries Tracks: modelado paso a paso como problema de programación lineal entera \par}
-    \vspace{2.5cm}
-    {\Large Autores \par}
-    {\Large CHACON Jose \par}
-    {\Large FLORIDO Santiago \par}
-    \vspace{1.5cm}
-    \textbf{Tema:} Modelado matemático del puzzle Tracks \par
-    \vfill
-    École Nationale des techniques avancées\\
-    Abril de 2026 \par
-\end{titlepage}
-
-\clearpage
-\pagenumbering{roman}
-\tableofcontents
-\clearpage
 \pagenumbering{arabic}
+\pagestyle{plain}
+\maketitle
+\thispagestyle{plain}
 
-\input{sections/01_introduccion}
-\input{sections/02_modelo_matematico_paso_a_paso}
-\input{sections/03_interpretacion_del_modelo}
+\input{sections/01_introduccion.tex}
+\input{sections/02_modelo_matematico_paso_a_paso.tex}
+\input{sections/03_interpretacion_del_modelo.tex}
 
 \end{document}
