@@ -6,7 +6,7 @@ The wording is kept consistent with the style of the report and with standard co
 ## Core graph terms
 
 **Graph**  
-A structure \(G=(V,E)\) with a set of vertices \(V\) and a set of edges \(E\).
+A structure <img src="../../../imgs/math/graph_g_ve.jpg" alt="G=(V,E)" height="24" /> with a set of vertices \(V\) and a set of edges \(E\).
 
 **Vertex**  
 A node of the graph. In this project, one vertex corresponds to one grid cell.

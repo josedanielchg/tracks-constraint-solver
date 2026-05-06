@@ -97,8 +97,9 @@ Output:
 - `incident_edges`
 - `arcs`
 
-This is where the mathematical objects \(V\), \(E^H\), \(E^V\), \(E\), \(N(v)\), \(\delta(v)\),
-and \(A\) become concrete Python data.
+This is where the mathematical objects
+<img src="../../imgs/math/graph_objects_bundle.jpg" alt="V,\ E^H,\ E^V,\ E,\ N(v),\ \delta(v),\ A" height="24" />
+become concrete Python data.
 
 The graph helper is intentionally deterministic. This matters for both debugging and testing.
 
@@ -120,9 +121,9 @@ The MILP builder creates:
 
 These correspond exactly to the report notation:
 
-- \(y_v\)
-- \(x_e\)
-- \(f_{uv}\)
+<p align="center">
+  <img src="../../imgs/math/variable_triplet_yx_f.jpg" alt="y_v,\ x_e,\ f_{uv}" height="28" />
+</p>
 
 The model objective is the constant `0`, because the problem is treated as a pure feasibility
 model.
@@ -216,7 +217,8 @@ The validator verifies:
 - internal degrees;
 - fixed clues;
 - connectedness of the selected subgraph;
-- path-size consistency through `|selected_edges| = |used_cells| - 1`.
+- path-size consistency through
+  <img src="../../imgs/math/path_size_identity.jpg" alt="|selected_edges| = |used_cells| - 1" height="24" />.
 
 If the solver returns a formally feasible solution that still violates the intended puzzle rules,
 the solution status is downgraded to `invalid`.

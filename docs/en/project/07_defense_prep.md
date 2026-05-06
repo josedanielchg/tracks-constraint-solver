@@ -165,7 +165,7 @@ Each team member should be able to explain clearly:
 - what a degree condition means in this context;
 - why a disconnected loop is invalid;
 - why a feasibility MILP is appropriate;
-- what the roles of \(y_v\), \(x_e\), and \(f_{uv}\) are;
+- what the roles of <img src="../../imgs/math/variable_triplet_yx_f.jpg" alt="y_v,\ x_e,\ f_{uv}" height="24" /> are;
 - why the validator exists;
 - what `fixed_used`, `fixed_empty`, `fixed_edges`, and `fixed_patterns` mean;
 - how one instance moves from `.txt` file to validated solution;

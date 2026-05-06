@@ -19,7 +19,7 @@ Why this matters:
 
 Tracks is a grid-based logic puzzle in which a single railway route must connect two terminals
 while satisfying row and column clues and respecting fixed information. In graph terms, the grid
-becomes a graph \(G=(V,E)\), the route becomes a selected connected subgraph with strict degree
+becomes a graph <img src="../../imgs/math/graph_g_ve.jpg" alt="G=(V,E)" height="24" />, the route becomes a selected connected subgraph with strict degree
 conditions, and the puzzle becomes a feasibility problem. The current implementation translates
 this idea into Python through a parser, graph helpers, an MILP solver built with PuLP/CBC, an
 independent validator, ASCII rendering tools, a Pygame viewer, and dataset-generation utilities.

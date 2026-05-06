@@ -7,36 +7,36 @@ Python implementation.
 
 | Report notation | Meaning | Current implementation |
 | --- | --- | --- |
-| \(R\) | set of row indices | implicit in `range(instance.rows)` |
-| \(C\) | set of column indices | implicit in `range(instance.cols)` |
-| \(V\) | set of cells | `build_grid_graph(instance).cells` |
-| \(E^H\) | horizontal edges | `build_grid_graph(instance).horizontal_edges` |
-| \(E^V\) | vertical edges | `build_grid_graph(instance).vertical_edges` |
-| \(E\) | admissible undirected edges | `build_grid_graph(instance).edges` |
-| \(N(v)\) | neighbors of a cell | `build_grid_graph(instance).neighbors[cell]` |
-| \(\delta(v)\) | incident edges of a cell | `build_grid_graph(instance).incident_edges[cell]` |
-| \(A\) | directed arcs | `build_grid_graph(instance).arcs` |
+| `R` | set of row indices | implicit in `range(instance.rows)` |
+| `C` | set of column indices | implicit in `range(instance.cols)` |
+| `V` | set of cells | `build_grid_graph(instance).cells` |
+| `E^H` | horizontal edges | `build_grid_graph(instance).horizontal_edges` |
+| `E^V` | vertical edges | `build_grid_graph(instance).vertical_edges` |
+| `E` | admissible undirected edges | `build_grid_graph(instance).edges` |
+| `N(v)` | neighbors of a cell | `build_grid_graph(instance).neighbors[cell]` |
+| <img src="../../../imgs/math/delta_v.jpg" alt="\delta(v)" height="20" /> | incident edges of a cell | `build_grid_graph(instance).incident_edges[cell]` |
+| `A` | directed arcs | `build_grid_graph(instance).arcs` |
 
 ## 2. Instance Parameters
 
 | Report notation | Meaning | Current implementation |
 | --- | --- | --- |
-| \(s\) | start terminal | `instance.start` |
-| \(t\) | end terminal | `instance.end` |
-| \(\rho_i\) | row clue | `instance.row_clues[i]` |
-| \(\gamma_j\) | column clue | `instance.col_clues[j]` |
-| \(V^+\) | forced-used cells | `instance.fixed_used` |
-| \(V^-\) | forced-empty cells | `instance.fixed_empty` |
-| \(\mathcal{P}\) | cells with fixed local patterns | `instance.fixed_patterns.keys()` |
-| \(P_v\) | required incident edges at one fixed-pattern cell | represented by `pattern_implied_edges(cell, pattern)` |
+| `s` | start terminal | `instance.start` |
+| `t` | end terminal | `instance.end` |
+| <img src="../../../imgs/math/rho_i.jpg" alt="\rho_i" height="20" /> | row clue | `instance.row_clues[i]` |
+| <img src="../../../imgs/math/gamma_j.jpg" alt="\gamma_j" height="20" /> | column clue | `instance.col_clues[j]` |
+| `V^+` | forced-used cells | `instance.fixed_used` |
+| `V^-` | forced-empty cells | `instance.fixed_empty` |
+| `\mathcal{P}` | cells with fixed local patterns | `instance.fixed_patterns.keys()` |
+| `P_v` | required incident edges at one fixed-pattern cell | represented by `pattern_implied_edges(cell, pattern)` |
 
 ## 3. Decision Variables
 
 | Report notation | Meaning | Current implementation |
 | --- | --- | --- |
-| \(y_v\) | used-cell binary variable | `y[cell]` in `tracks_solver/solver/milp.py` |
-| \(x_e\) | selected-edge binary variable | `x[edge]` in `tracks_solver/solver/milp.py` |
-| \(f_{uv}\) | auxiliary flow variable | `f[arc]` in `tracks_solver/solver/milp.py` |
+| <img src="../../../imgs/math/variable_yv.jpg" alt="y_v" height="20" /> | used-cell binary variable | `y[cell]` in `tracks_solver/solver/milp.py` |
+| <img src="../../../imgs/math/variable_xe.jpg" alt="x_e" height="20" /> | selected-edge binary variable | `x[edge]` in `tracks_solver/solver/milp.py` |
+| <img src="../../../imgs/math/variable_fuv.jpg" alt="f_{uv}" height="20" /> | auxiliary flow variable | `f[arc]` in `tracks_solver/solver/milp.py` |
 
 ## 4. Constraint Families
 
@@ -59,7 +59,7 @@ Python implementation.
 | local degree rules | `validate_solution(...)` recomputes degrees from selected edges |
 | fixed information | `validate_solution(...)` checks fixed cells, edges, and patterns |
 | connectedness | `validate_solution(...)` performs reachability from `instance.start` |
-| single-path size consistency | `validate_solution(...)` checks `|E| = |V| - 1` on the selected subgraph |
+| single-path size consistency | `validate_solution(...)` checks <img src="../../../imgs/math/path_size_identity.jpg" alt="|selected_edges| = |used_cells| - 1" height="20" /> on the selected subgraph |
 
 ## 6. Data and Presentation Layers
 
@@ -88,7 +88,7 @@ report notation
 Example:
 
 ```text
-delta(v)
+<img src="../../../imgs/math/delta_v.jpg" alt="\delta(v)" height="20" />
   -> graph.incident_edges[cell]
   -> degree constraint in milp.py
   -> degree recomputation in validation.py

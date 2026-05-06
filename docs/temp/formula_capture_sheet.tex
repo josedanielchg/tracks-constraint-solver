@@ -1,0 +1,190 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\newcommand{\formulaentry}[2]{%
+  \texttt{\detokenize{#1.jpg :}}\par
+  \vspace{0.4em}
+  \[
+  #2
+  \]
+  \vspace{1.2em}
+  \hrule
+  \vspace{1.2em}
+}
+
+\begin{document}
+
+{\Large Formula Capture Sheet}\par
+\vspace{0.5em}
+If the same filename appears more than once, capture it once and reuse the same JPG in
+\texttt{docs/imgs/math/}.
+
+\section*{README.md}
+
+\formulaentry{graph_g_ve}{G=(V,E)}
+
+\section*{docs/en/project/index.md}
+
+\formulaentry{graph_g_ve}{G=(V,E)}
+
+\section*{docs/en/project/01\_from\_puzzle\_to\_graph.md}
+
+\formulaentry{graph_g_ve}{G=(V,E)}
+
+\section*{docs/en/project/02\_mathematical\_model.md}
+
+\formulaentry{grid_mxn}{m \times n}
+
+\formulaentry{terminals_st}{s,\ t}
+
+\formulaentry{feasibility_objective}{\min 0}
+
+\formulaentry{sets_rcv_e}{R=\{1,\dots,m\},\quad C=\{1,\dots,n\},\quad V=R\times C,\quad E=E^H \cup E^V}
+
+\formulaentry{edge_sets_eh_ev}{
+\begin{aligned}
+E^H &= \bigl\{\{(i,j),(i,j+1)\}\bigr\} \\
+E^V &= \bigl\{\{(i,j),(i+1,j)\}\bigr\}
+\end{aligned}
+}
+
+\formulaentry{neighbors_delta}{N(v),\ \delta(v)}
+
+\formulaentry{clues_rho_gamma}{\rho_i,\ \gamma_j}
+
+\formulaentry{fixed_sets_vplus_vminus_p}{V^+,\ V^-,\ \mathcal{P},\ P_v}
+
+\formulaentry{consistency_total_counts}{\sum_i \rho_i = \sum_j \gamma_j}
+
+\formulaentry{variable_yv}{
+y_v =
+\begin{cases}
+1 & \text{if cell } v \text{ is used,}\\
+0 & \text{otherwise.}
+\end{cases}
+}
+
+\formulaentry{variable_xe}{
+x_e =
+\begin{cases}
+1 & \text{if edge } e \text{ is selected,}\\
+0 & \text{otherwise.}
+\end{cases}
+}
+
+\formulaentry{arc_set_a}{A = \{(u,v) : \{u,v\} \in E\}}
+
+\formulaentry{variable_fuv}{f_{uv} \ge 0}
+
+\formulaentry{row_count_constraint}{\sum_{j \in C} y_{(i,j)} = \rho_i}
+
+\formulaentry{column_count_constraint}{\sum_{i \in R} y_{(i,j)} = \gamma_j}
+
+\formulaentry{edge_cell_consistency}{
+\begin{aligned}
+x_{\{u,v\}} &\le y_u \\
+x_{\{u,v\}} &\le y_v
+\end{aligned}
+}
+
+\formulaentry{terminal_use_constraint}{
+\begin{aligned}
+y_s &= 1 \\
+y_t &= 1
+\end{aligned}
+}
+
+\formulaentry{terminal_degree_constraint}{
+\begin{aligned}
+\sum_{e \in \delta(s)} x_e &= 1 \\
+\sum_{e \in \delta(t)} x_e &= 1
+\end{aligned}
+}
+
+\formulaentry{internal_degree_constraint}{\sum_{e \in \delta(v)} x_e = 2y_v}
+
+\formulaentry{fixed_used_constraint}{y_v = 1}
+
+\formulaentry{fixed_empty_constraint}{y_v = 0}
+
+\formulaentry{fixed_pattern_constraints}{
+\begin{aligned}
+x_e &= 1 && \text{for edges that belong to the pattern,} \\
+x_e &= 0 && \text{for incident edges that do not belong to the pattern.}
+\end{aligned}
+}
+
+\formulaentry{flow_capacity_constraint}{0 \le f_{uv} \le Mx_{\{u,v\}}}
+
+\formulaentry{flow_source_constraint}{
+\operatorname{outgoing}(s)-\operatorname{incoming}(s)=\sum_{v \ne s} y_v
+}
+
+\formulaentry{flow_balance_constraint}{
+\operatorname{incoming}(v)-\operatorname{outgoing}(v)=y_v
+}
+
+\formulaentry{connectivity_cut_constraint}{\sum_{e \in \delta(S)} x_e \ge 1}
+
+\section*{docs/en/project/04\_solver\_pipeline.md}
+
+\formulaentry{graph_objects_bundle}{V,\ E^H,\ E^V,\ E,\ N(v),\ \delta(v),\ A}
+
+\formulaentry{variable_triplet_yx_f}{y_v,\ x_e,\ f_{uv}}
+
+\formulaentry{path_size_identity}{
+\lvert \text{\texttt{selected\_edges}} \rvert = \lvert \text{\texttt{used\_cells}} \rvert - 1
+}
+
+\section*{docs/en/project/06\_validation\_testing\_and\_results.md}
+
+\formulaentry{path_size_identity}{
+\lvert \text{\texttt{selected\_edges}} \rvert = \lvert \text{\texttt{used\_cells}} \rvert - 1
+}
+
+\section*{docs/en/project/07\_defense\_prep.md}
+
+\formulaentry{variable_triplet_yx_f}{y_v,\ x_e,\ f_{uv}}
+
+\section*{docs/en/project/appendices/model\_to\_code\_traceability.md}
+
+\formulaentry{delta_v}{\delta(v)}
+
+\formulaentry{rho_i}{\rho_i}
+
+\formulaentry{gamma_j}{\gamma_j}
+
+\formulaentry{variable_yv}{
+y_v =
+\begin{cases}
+1 & \text{if cell } v \text{ is used,}\\
+0 & \text{otherwise.}
+\end{cases}
+}
+
+\formulaentry{variable_xe}{
+x_e =
+\begin{cases}
+1 & \text{if edge } e \text{ is selected,}\\
+0 & \text{otherwise.}
+\end{cases}
+}
+
+\formulaentry{variable_fuv}{f_{uv}}
+
+\formulaentry{path_size_identity}{
+\lvert \text{\texttt{selected\_edges}} \rvert = \lvert \text{\texttt{used\_cells}} \rvert - 1
+}
+
+\section*{docs/en/project/appendices/glossary.md}
+
+\formulaentry{graph_g_ve}{G=(V,E)}
+
+\end{document}

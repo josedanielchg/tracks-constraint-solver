@@ -70,7 +70,7 @@ The validator checks:
 
 ### Global size consistency
 
-- `|selected_edges| = |used_cells| - 1`
+- <img src="../../imgs/math/path_size_identity.jpg" alt="|selected_edges| = |used_cells| - 1" height="24" />
 
 This is a compact way to reinforce the fact that the selected structure must behave like a single
 path rather than a disconnected forest or a graph with extra cycles.

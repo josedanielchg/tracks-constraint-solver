@@ -11,13 +11,15 @@ For the formal LaTeX version, see:
 
 ## 1. Problem Statement
 
-We consider a Tracks instance on an \(m \times n\) grid. Two special cells are prescribed:
+We consider a Tracks instance on an <img src="../../imgs/math/grid_mxn.jpg" alt="m \times n" height="24" /> grid.
+Two special cells are prescribed:
 
-- a start terminal \(s\);
-- an end terminal \(t\).
+<p align="center">
+  <img src="../../imgs/math/terminals_st.jpg" alt="s,\ t" height="28" />
+</p>
 
 The goal is not to minimize a cost. The goal is to decide whether there exists a valid railway
-route from \(s\) to \(t\) that satisfies:
+route from the start terminal to the end terminal that satisfies:
 
 - row and column clues;
 - local track consistency;
@@ -28,9 +30,9 @@ route from \(s\) to \(t\) that satisfies:
 This is therefore a **feasibility problem**. In standard MILP form, it is written with the dummy
 objective:
 
-```text
-min 0
-```
+<p align="center">
+  <img src="../../imgs/math/feasibility_objective.jpg" alt="\min 0" width="220" />
+</p>
 
 The objective is only a technical wrapper. The real content is entirely in the constraints.
 
@@ -38,45 +40,45 @@ The objective is only a technical wrapper. The real content is entirely in the c
 
 The report uses the following notation:
 
-- \(R = \{1,\dots,m\}\): set of row indices
-- \(C = \{1,\dots,n\}\): set of column indices
-- \(V = R \times C\): set of cells
-- \(E = E^H \cup E^V\): set of admissible undirected edges between orthogonally adjacent cells
+<p align="center">
+  <img src="../../imgs/math/sets_rcv_e.jpg" alt="R=\{1,\dots,m\},\ C=\{1,\dots,n\},\ V=R\times C,\ E=E^H \cup E^V" width="560" />
+</p>
 
 The horizontal and vertical edge subsets are:
 
-```text
-E^H = { {(i,j),(i,j+1)} }
-E^V = { {(i,j),(i+1,j)} }
-```
+<p align="center">
+  <img src="../../imgs/math/edge_sets_eh_ev.jpg" alt="E^H,\ E^V" width="560" />
+</p>
 
-For a vertex \(v\):
+For neighborhood notation, we use:
 
-- \(N(v)\): neighbors of \(v\)
-- \(\delta(v)\): edges incident to \(v\)
+<p align="center">
+  <img src="../../imgs/math/neighbors_delta.jpg" alt="N(v),\ \delta(v)" height="28" />
+</p>
 
 The terminals are:
 
-- \(s \in V\)
-- \(t \in V\)
+<p align="center">
+  <img src="../../imgs/math/terminals_st.jpg" alt="s,\ t" height="28" />
+</p>
 
 The clue parameters are:
 
-- \(\rho_i\): row clue for row \(i\)
-- \(\gamma_j\): column clue for column \(j\)
+<p align="center">
+  <img src="../../imgs/math/clues_rho_gamma.jpg" alt="\rho_i,\ \gamma_j" height="28" />
+</p>
 
 Fixed-information sets:
 
-- \(V^+\): cells forced to be used
-- \(V^-\): cells forced to be empty
-- \(\mathcal{P}\): cells whose local pattern is prescribed
-- \(P_v\): prescribed incident edges at \(v \in \mathcal{P}\)
+<p align="center">
+  <img src="../../imgs/math/fixed_sets_vplus_vminus_p.jpg" alt="V^+,\ V^-,\ \mathcal{P},\ P_v" height="30" />
+</p>
 
 The necessary consistency condition is:
 
-```text
-sum_i rho_i = sum_j gamma_j
-```
+<p align="center">
+  <img src="../../imgs/math/consistency_total_counts.jpg" alt="\sum_i \rho_i = \sum_j \gamma_j" width="360" />
+</p>
 
 because both sides count the total number of used cells.
 
@@ -86,23 +88,21 @@ The model uses three families of variables.
 
 ### Cell variables
 
-For each cell \(v \in V\):
+For each cell in the grid:
 
-```text
-y_v = 1 if cell v is used
-y_v = 0 otherwise
-```
+<p align="center">
+  <img src="../../imgs/math/variable_yv.jpg" alt="y_v" width="360" />
+</p>
 
 These variables express row and column clues naturally.
 
 ### Edge variables
 
-For each admissible undirected edge \(e \in E\):
+For each admissible undirected edge:
 
-```text
-x_e = 1 if edge e is selected in the railway
-x_e = 0 otherwise
-```
+<p align="center">
+  <img src="../../imgs/math/variable_xe.jpg" alt="x_e" width="380" />
+</p>
 
 These variables express the geometry of the route.
 
@@ -110,15 +110,15 @@ These variables express the geometry of the route.
 
 To enforce connectedness, the model uses directed arcs:
 
-```text
-A = {(u,v) : {u,v} in E}
-```
+<p align="center">
+  <img src="../../imgs/math/arc_set_a.jpg" alt="A = \{(u,v) : \{u,v\} \in E\}" width="360" />
+</p>
 
-and for each arc \((u,v)\):
+and for each arc:
 
-```text
-f_uv >= 0
-```
+<p align="center">
+  <img src="../../imgs/math/variable_fuv.jpg" alt="f_{uv} \ge 0" width="220" />
+</p>
 
 This flow does not represent a physical train. It is an auxiliary mathematical device ensuring
 that every selected cell can be reached from the source.
@@ -127,17 +127,17 @@ that every selected cell can be reached from the source.
 
 ### 4.1 Row and column count constraints
 
-For every row \(i\):
+For every row:
 
-```text
-sum_j y_(i,j) = rho_i
-```
+<p align="center">
+  <img src="../../imgs/math/row_count_constraint.jpg" alt="\sum_{j \in C} y_{(i,j)} = \rho_i" width="420" />
+</p>
 
-For every column \(j\):
+For every column:
 
-```text
-sum_i y_(i,j) = gamma_j
-```
+<p align="center">
+  <img src="../../imgs/math/column_count_constraint.jpg" alt="\sum_{i \in R} y_{(i,j)} = \gamma_j" width="420" />
+</p>
 
 Plain-English meaning:
 
@@ -148,12 +148,11 @@ These are the direct translations of the puzzle clues.
 
 ### 4.2 Edge-cell consistency
 
-For every undirected edge \(\{u,v\} \in E\):
+For every admissible undirected edge:
 
-```text
-x_{u,v} <= y_u
-x_{u,v} <= y_v
-```
+<p align="center">
+  <img src="../../imgs/math/edge_cell_consistency.jpg" alt="x_{\{u,v\}} \le y_u,\ x_{\{u,v\}} \le y_v" width="440" />
+</p>
 
 Plain-English meaning:
 
@@ -166,17 +165,15 @@ This is a standard compatibility block between node-selection and edge-selection
 
 The terminals must be used:
 
-```text
-y_s = 1
-y_t = 1
-```
+<p align="center">
+  <img src="../../imgs/math/terminal_use_constraint.jpg" alt="y_s = 1,\ y_t = 1" width="260" />
+</p>
 
 Their selected degree must be exactly one:
 
-```text
-sum_{e in delta(s)} x_e = 1
-sum_{e in delta(t)} x_e = 1
-```
+<p align="center">
+  <img src="../../imgs/math/terminal_degree_constraint.jpg" alt="\sum_{e \in \delta(s)} x_e = 1,\ \sum_{e \in \delta(t)} x_e = 1" width="470" />
+</p>
 
 Plain-English meaning:
 
@@ -185,11 +182,11 @@ Plain-English meaning:
 
 ### 4.4 Internal degree constraints
 
-For every non-terminal cell \(v\):
+For every non-terminal cell:
 
-```text
-sum_{e in delta(v)} x_e = 2 y_v
-```
+<p align="center">
+  <img src="../../imgs/math/internal_degree_constraint.jpg" alt="\sum_{e \in \delta(v)} x_e = 2y_v" width="360" />
+</p>
 
 Plain-English meaning:
 
@@ -202,22 +199,21 @@ This enforces local route continuity and prevents branching.
 
 If a cell is forced to be used:
 
-```text
-y_v = 1
-```
+<p align="center">
+  <img src="../../imgs/math/fixed_used_constraint.jpg" alt="y_v = 1" width="180" />
+</p>
 
 If a cell is forced to be empty:
 
-```text
-y_v = 0
-```
+<p align="center">
+  <img src="../../imgs/math/fixed_empty_constraint.jpg" alt="y_v = 0" width="180" />
+</p>
 
 If a local pattern is prescribed, then:
 
-```text
-x_e = 1 for edges that belong to the pattern
-x_e = 0 for incident edges that do not belong to the pattern
-```
+<p align="center">
+  <img src="../../imgs/math/fixed_pattern_constraints.jpg" alt="x_e = 1 for pattern edges,\ x_e = 0 for forbidden incident edges" width="520" />
+</p>
 
 Plain-English meaning:
 
@@ -226,25 +222,25 @@ Plain-English meaning:
 
 ### 4.6 Flow-based connectivity
 
-Let \(M = |V| - 1\). For each arc \((u,v)\):
+For each directed arc, capacity is controlled by:
 
-```text
-0 <= f_uv <= M x_{u,v}
-```
+<p align="center">
+  <img src="../../imgs/math/flow_capacity_constraint.jpg" alt="0 \le f_{uv} \le Mx_{\{u,v\}}" width="300" />
+</p>
 
 This means flow can use an arc only if the underlying undirected edge is selected.
 
 At the source:
 
-```text
-outgoing(s) - incoming(s) = sum_{v != s} y_v
-```
+<p align="center">
+  <img src="../../imgs/math/flow_source_constraint.jpg" alt="\text{outgoing}(s)-\text{incoming}(s)=\sum_{v \ne s} y_v" width="500" />
+</p>
 
-At every other vertex \(v \neq s\):
+At every other vertex:
 
-```text
-incoming(v) - outgoing(v) = y_v
-```
+<p align="center">
+  <img src="../../imgs/math/flow_balance_constraint.jpg" alt="\text{incoming}(v)-\text{outgoing}(v)=y_v" width="360" />
+</p>
 
 Plain-English meaning:
 
@@ -264,7 +260,7 @@ Suppose the model contains:
 
 Then an invalid configuration can still appear:
 
-- one valid path from \(s\) to \(t\);
+- one valid path from the start terminal to the end terminal;
 - one extra disconnected cycle somewhere else.
 
 Why does this happen?
@@ -278,7 +274,7 @@ That is why the model needs a connectivity formulation in addition to degree con
 
 The flow formulation works by contradiction.
 
-Suppose a disconnected component exists and does not contain the source \(s\).
+Suppose a disconnected component exists and does not contain the source.
 Then:
 
 - no flow can enter that component, because flow is limited to selected edges;
@@ -306,11 +302,11 @@ the graph by at least one selected edge.
 
 This leads to connectivity cuts of the form:
 
-```text
-sum_{e in delta(S)} x_e >= 1
-```
+<p align="center">
+  <img src="../../imgs/math/connectivity_cut_constraint.jpg" alt="\sum_{e \in \delta(S)} x_e \ge 1" width="320" />
+</p>
 
-for appropriate selected subsets \(S\).
+for appropriate selected subsets.
 
 Advantage:
 
@@ -340,14 +336,13 @@ For a first implementation, the flow approach is the most direct baseline.
 
 | Mathematical object | Meaning | Where it appears in code |
 | --- | --- | --- |
-| \(V\) | set of cells | `tracks_solver/core/graph.py` via `build_grid_graph(...).cells` |
-| \(E\) | admissible undirected edges | `build_grid_graph(...).edges` |
-| \(N(v)\) | neighbors of one cell | `build_grid_graph(...).neighbors` |
-| \(\delta(v)\) | incident edges of one cell | `build_grid_graph(...).incident_edges` |
-| \(y_v\) | used-cell variable | `tracks_solver/solver/milp.py` as `y[cell]` |
-| \(x_e\) | selected-edge variable | `tracks_solver/solver/milp.py` as `x[edge]` |
-| \(f_{uv}\) | connectivity-flow variable | `tracks_solver/solver/milp.py` as `f[arc]` |
-| \(V^+, V^-, \mathcal{P}\) | fixed clues | parsed into `TracksInstance` in `tracks_solver/core/models.py` and `parser.py` |
+| `V` | set of cells | `tracks_solver/core/graph.py` via `build_grid_graph(...).cells` |
+| `E` | admissible undirected edges | `build_grid_graph(...).edges` |
+| <img src="../../imgs/math/neighbors_delta.jpg" alt="N(v), \delta(v)" height="20" /> | neighbors / incident-edge notation | `build_grid_graph(...).neighbors` and `build_grid_graph(...).incident_edges` |
+| <img src="../../imgs/math/variable_yv.jpg" alt="y_v" height="20" /> | used-cell variable | `tracks_solver/solver/milp.py` as `y[cell]` |
+| <img src="../../imgs/math/variable_xe.jpg" alt="x_e" height="20" /> | selected-edge variable | `tracks_solver/solver/milp.py` as `x[edge]` |
+| <img src="../../imgs/math/variable_fuv.jpg" alt="f_{uv}" height="20" /> | connectivity-flow variable | `tracks_solver/solver/milp.py` as `f[arc]` |
+| <img src="../../imgs/math/fixed_sets_vplus_vminus_p.jpg" alt="V^+, V^-, \mathcal{P}, P_v" height="22" /> | fixed clues | parsed into `TracksInstance` in `tracks_solver/core/models.py` and `parser.py` |
 
 The full mapping table is available in:
 - [Model-to-Code Traceability](appendices/model_to_code_traceability.md)

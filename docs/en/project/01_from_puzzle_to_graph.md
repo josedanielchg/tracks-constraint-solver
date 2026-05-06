@@ -39,7 +39,7 @@ This is exactly the language of graph theory:
 - an **edge** represents an orthogonal adjacency between two neighboring cells;
 - a **selected subgraph** represents the railway route.
 
-That is why the grid is transformed into a graph \(G=(V,E)\).
+That is why the grid is transformed into a graph <img src="../../imgs/math/graph_g_ve.jpg" alt="G=(V,E)" height="24" />.
 
 ## 3. Formal Graph Abstraction
 
