@@ -1,4 +1,4 @@
-# Validation, Testing, and Results
+# Validation and Testing
 
 Why this matters:
 
@@ -188,7 +188,7 @@ layers:
 This is a better strategy than relying only on one large end-to-end test, because it localizes
 errors more precisely.
 
-## 6. Dataset Results and Experiment Support
+## 6. Dataset Support for Experiments
 
 Main module:
 
@@ -217,6 +217,10 @@ This matters for the report and the defense because it supports:
 - debugging of difficult maps;
 - future experimental tables and plots.
 
+The benchmark-specific interpretation now lives on a dedicated page:
+
+- [Benchmark Results](07_benchmark_results.md)
+
 ## 7. Why This Matters in the Defense
 
 In an oral defense, saying "the solver works" is weak.
@@ -237,6 +241,6 @@ This shows rigor rather than blind optimism.
 - Common failure modes are known and explicitly tested.
 - Dataset result files turn the project into an experimental platform, not just a one-instance demo.
 
-The last step is to convert all this material into defense-ready explanations.
+The next page turns the generated benchmark into a concrete empirical story.
 
-Next: [Defense Preparation](07_defense_prep.md)
+Next: [Benchmark Results](07_benchmark_results.md)

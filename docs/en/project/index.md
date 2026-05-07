@@ -32,7 +32,8 @@ If the goal is to prepare an oral defense quickly, read in this order:
 
 1. [From Puzzle to Graph](01_from_puzzle_to_graph.md)
 2. [Mathematical Model](02_mathematical_model.md)
-3. [Defense Preparation](07_defense_prep.md)
+3. [Benchmark Results](07_benchmark_results.md)
+4. [Defense Preparation](08_defense_prep.md)
 
 ### Full Technical Path
 
@@ -43,8 +44,9 @@ If the goal is to understand the full system from modeling to code:
 3. [Code Architecture](03_code_architecture.md)
 4. [Solver Pipeline](04_solver_pipeline.md)
 5. [UI, Generation, and Data](05_ui_generation_and_data.md)
-6. [Validation, Testing, and Results](06_validation_testing_and_results.md)
-7. [Defense Preparation](07_defense_prep.md)
+6. [Validation and Testing](06_validation_and_testing.md)
+7. [Benchmark Results](07_benchmark_results.md)
+8. [Defense Preparation](08_defense_prep.md)
 
 ### Code-First Path
 
@@ -53,8 +55,9 @@ If the reader already knows the mathematics and wants to navigate the implementa
 1. [Code Architecture](03_code_architecture.md)
 2. [Solver Pipeline](04_solver_pipeline.md)
 3. [UI, Generation, and Data](05_ui_generation_and_data.md)
-4. [Validation, Testing, and Results](06_validation_testing_and_results.md)
-5. [Model-to-Code Traceability](appendices/model_to_code_traceability.md)
+4. [Validation and Testing](06_validation_and_testing.md)
+5. [Benchmark Results](07_benchmark_results.md)
+6. [Model-to-Code Traceability](appendices/model_to_code_traceability.md)
 
 ## Documentation Map
 
@@ -63,8 +66,9 @@ If the reader already knows the mathematics and wants to navigate the implementa
 - [Code Architecture](03_code_architecture.md): how the repository is organized as a system
 - [Solver Pipeline](04_solver_pipeline.md): how one instance goes from text file to validated solution
 - [UI, Generation, and Data](05_ui_generation_and_data.md): file format, viewer, generators, and datasets
-- [Validation, Testing, and Results](06_validation_testing_and_results.md): why the project is trustworthy
-- [Defense Preparation](07_defense_prep.md): likely questions, ready answers, and speaking structure
+- [Validation and Testing](06_validation_and_testing.md): why solver output can be trusted
+- [Benchmark Results](07_benchmark_results.md): what the generated experiments show in practice
+- [Defense Preparation](08_defense_prep.md): likely questions, ready answers, and speaking structure
 
 Appendices:
 

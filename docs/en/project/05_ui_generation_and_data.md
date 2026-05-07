@@ -242,4 +242,4 @@ still centered on the mathematical model and solver correctness.
 
 The next step is to show how the project proves that its outputs are reliable.
 
-Next: [Validation, Testing, and Results](06_validation_testing_and_results.md)
+Next: [Validation and Testing](06_validation_and_testing.md)
