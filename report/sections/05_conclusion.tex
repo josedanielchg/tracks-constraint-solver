@@ -1,0 +1,33 @@
+\section{Conclusion}
+
+This project models \textit{Tracks} as a graph-based feasibility problem and
+implements the resulting formulation in Python. The grid is represented as an
+undirected graph, the railway route is described through selected vertices and
+edges, and the path structure is enforced by degree constraints together with
+a single-commodity flow formulation. This combination is essential: local
+degree rules prevent branches, while the flow certificate eliminates
+disconnected cycles and extra components.
+
+The implementation follows the mathematical formulation closely. Instance
+files are parsed into normalized data objects, graph helpers construct the
+sets used by the MILP, the PuLP/CBC backend solves the feasibility model, and
+an independent validator checks the returned solution. Additional tools make
+the project compatible with the course workflow by supporting manual test
+instances, dataset generation, batch solving, result files, and LaTeX result
+tables. The Pygame interface provides a visual layer for inspecting solved
+instances and for experimenting with playable boards.
+
+The computational experiments show that the solver behaves correctly on a
+controlled generated benchmark from \(5\times5\) to \(16\times16\). All
+generated instances in the benchmark are solved to optimality and validated,
+while the average solving time increases with the board size and with the
+difficulty profile. This confirms both the practical usefulness of the exact
+model and the expected growth in difficulty as the graph and route structure
+become more complex.
+
+Several extensions remain possible. The generated benchmark could be expanded
+to larger grids and more difficulty profiles. The visual interface could also
+be improved with richer interaction tools and better puzzle-selection
+features. These extensions would make it possible to study the practical
+limits of the exact flow formulation while keeping the project focused on the
+Tracks model actually required here.

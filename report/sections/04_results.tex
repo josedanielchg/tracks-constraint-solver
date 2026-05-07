@@ -1,46 +1,145 @@
-\section{Computational Results and Course Compliance}
+\section{Computational Results}
 \label{sec:results}
 
-The first experimental objective is to verify that the complete course-style
-workflow is available for Tracks. A manual instance named
-\texttt{instanceTest.txt} is provided, and the solver can also be applied to
-the existing small manual instances. For each instance, the result file records
-at least the variables \texttt{solveTime} and \texttt{isOptimal}, matching the
-format expected by the course example.
+The computational study focuses on generated Tracks instances only. This
+choice isolates the behavior of the exact MILP formulation from hand-crafted
+or screenshot-derived boards, and it gives a controlled benchmark in which
+the grid size and the generation difficulty are varied systematically. Every
+instance is generated, stored as a text file, solved with the same PuLP/CBC
+backend, and then checked with the independent validator.
 
-\begin{table}[h]
+\begin{table}[t]
+\caption{Generated benchmark protocol.}
+\label{tab:generated-benchmark-protocol}
 \centering
-\caption{Representative run of the exact MILP solver on manual Tracks instances.}
-\label{tab:manual-results}
-\begin{tabular}{lrrrr}
+\scriptsize
+\begin{tabular}{@{}lp{0.54\columnwidth}@{}}
 \toprule
-\textbf{Instance} & \textbf{Rows} & \textbf{Cols} & \textbf{Time (s)} & \textbf{Optimal} \\
+\textbf{Item} & \textbf{Value} \\
 \midrule
-\texttt{instanceTest.txt} & 4 & 4 & 0.038 & yes \\
-\texttt{small\_4x4.txt} & 4 & 4 & 0.040 & yes \\
-\texttt{small\_5x5.txt} & 5 & 5 & 0.045 & yes \\
-\texttt{unsat\_2x2.txt} & 2 & 2 & 0.036 & no \\
+Instance source & Constructive generator only \\
+Saved location & \texttt{data/tracks/generated/} \\
+Board sizes & \(5\times5,6\times6,\ldots,16\times16\) \\
+Difficulties & Easy, Medium, Hard \\
+Attempts per configuration & 10 \\
+Total instances & 360 \\
+Solver backend & PuLP/CBC exact-flow MILP \\
+Time limit per instance & 120 s \\
+Result file &
+\begin{tabular}[t]{@{}l@{}}
+\texttt{res/tracks/report/}\\
+\texttt{generated\_benchmark\_results.csv}
+\end{tabular} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The first three instances are feasible and are solved to optimality by the
-MILP backend. The fourth instance is intentionally inconsistent and is reported
-as infeasible. This is a useful check because it confirms that the solver does
-not merely return a route whenever it is called; it also detects impossible
-clue systems.
+Table~\ref{tab:generated-benchmark-protocol} gives the complete experimental
+protocol. The benchmark contains
+\[
+12 \text{ sizes} \times 3 \text{ difficulties} \times 10 \text{ attempts}
+= 360
+\]
+instances. For each row, the collector records the generated file path,
+generation time, solver time, solver status, validator status, route length,
+number of fixed hints, and the time limit. The generated files are kept in the
+repository data folder so that the experiment can be inspected or rerun
+without silently replacing the underlying boards.
 
-The generated course-style result files are stored in
-\texttt{res/tracks/cbc}. A CSV summary is also produced for easier inspection,
-and a LaTeX table can be generated automatically from the same result files.
-The exact numerical times in Table~\ref{tab:manual-results} are machine
-dependent, but the important point for this stage is the structure of the
-workflow: every instance can be read, solved, validated, displayed, and
-summarized in a reusable result format.
+\begin{table}[t]
+\caption{Aggregate outcome over the generated benchmark.}
+\label{tab:generated-aggregate-results}
+\centering
+\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Difficulty} & \textbf{Instances} & \textbf{Solved} &
+\textbf{Avg. solve (s)} & \textbf{Avg. hints} \\
+\midrule
+Easy & 120 & 120 & 0.078 & 28.5 \\
+Medium & 120 & 120 & 0.127 & 15.8 \\
+Hard & 120 & 120 & 0.148 & 8.3 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-From the point of view of the project statement, the remaining experimental
-work for Tracks is therefore not the construction of the model, but the
-extension of the benchmark set. Larger generated instances and screenshot
-instances can be solved with the same pipeline, then summarized with the same
-result-table function. These experiments will allow the final report to discuss
-how solving time changes with grid size and clue structure.
+Table~\ref{tab:generated-aggregate-results} summarizes the main numerical
+outcome. All 360 generated instances were solved to optimality and passed the
+validator. The average solve time increases from Easy to Hard because the
+generator requests longer paths and exposes fewer fixed hints. This behavior
+is consistent with the graph model: longer paths use more vertices and edges,
+and fewer hints leave more feasible local configurations for the MILP to
+separate through the global flow constraints.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{sections/images/tracks_hard_threshold_generation_vs_solver.png}
+\caption{Generation time and exact-flow solve time for Hard generated
+instances as the board size increases.}
+\label{fig:hard-threshold-generation-vs-solver}
+\end{figure}
+
+Fig.~\ref{fig:hard-threshold-generation-vs-solver} compares the two costs
+involved in the empirical Hard profile: constructing a valid instance and
+solving it exactly with the flow MILP. Generation remains almost negligible
+because the generator first builds a valid path and then derives row and
+column clues from it. The solve time is larger and grows with the board size,
+from approximately \(0.048\) s on \(5\times5\) boards to approximately
+\(0.333\) s on \(16\times16\) boards. This confirms that the exact
+connectivity model is the dominant computational component of the pipeline.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{sections/images/tracks_cumulative_solved_5x5.png}
+\caption{Cumulative number of solved generated instances as a function of
+time for \(5\times5\) boards.}
+\label{fig:cumulative-solved-5x5}
+\end{figure}
+
+The cumulative curve in Fig.~\ref{fig:cumulative-solved-5x5} shows the
+small-board regime. All \(5\times5\) instances are solved within a fraction of
+a second, independently of the difficulty profile. The separation between
+Easy, Medium, and Hard is therefore visible but not critical at this size:
+the graph has only 25 vertices, and the number of binary variables and flow
+arcs remains small.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{sections/images/tracks_cumulative_solved_16x16.png}
+\caption{Cumulative number of solved generated instances as a function of
+time for \(16\times16\) boards.}
+\label{fig:cumulative-solved-16x16}
+\end{figure}
+
+Fig.~\ref{fig:cumulative-solved-16x16} gives the same view for the largest
+boards in the benchmark. The three difficulty profiles remain solvable within
+the time limit, but their curves spread more clearly. Easy instances finish
+first because their paths are shorter and their hints are denser. Medium and
+Hard instances require more time because the solver must certify a longer
+connected route over a larger graph with fewer prescribed local decisions.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{sections/images/tracks_average_solution_time_by_size_and_difficulty.png}
+\caption{Average exact-flow solution time as a function of board size for
+each generation difficulty.}
+\label{fig:average-solution-time-by-size-difficulty}
+\end{figure}
+
+Fig.~\ref{fig:average-solution-time-by-size-difficulty} is the main
+scalability plot. The average solution time increases with size for all three
+difficulty levels, and the Hard curve is generally above the Easy curve. The
+largest observed averages are about \(0.114\) s for Easy \(16\times16\),
+\(0.282\) s for Medium \(16\times16\), and \(0.333\) s for Hard
+\(16\times16\). The trend is not perfectly monotone at every intermediate
+size because each point averages only ten generated boards, but the overall
+pattern is clear: larger graphs and fewer fixed hints produce larger MILP
+instances and longer exact-flow solving times.
+
+These experiments support two conclusions. First, the implementation of the
+mathematical model is consistent: every generated board is solved, decoded,
+and validated according to the row clues, column clues, local degree rules,
+fixed information, and global connectedness condition. Second, within the
+tested range, the flow-based MILP is practical for generated Tracks boards up
+to \(16\times16\). All reported solutions come from the exact feasibility
+formulation described in Section~\ref{sec:mathematical-model}.

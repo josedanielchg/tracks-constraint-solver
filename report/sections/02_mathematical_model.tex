@@ -263,27 +263,68 @@ Taken together, the degree and connectivity constraints characterize the require
 \subsection{Objective Function and Feasibility Viewpoint}
 
 The puzzle is not associated with a meaningful cost to minimize. The role of the model is only to determine whether the set of constraints admits a feasible solution. For that reason, the complete formulation can be written as
-\[
-\begin{aligned}
-    \min \quad & 0 \\
+\begin{subequations}
+\label{eq:tracks-complete-milp}
+\begin{align}
+    \min \quad & 0 \label{eq:tracks-complete-objective}\\
     \text{s.t.} \quad
-    & \eqref{eq:row-count}-\eqref{eq:flow-balance}, \\
-    & y_v \in \{0,1\} && \forall v \in V, \\
-    & x_e \in \{0,1\} && \forall e \in E, \\
+    & \eqref{eq:row-count},\ \eqref{eq:column-count}, \notag\\
+    & \eqref{eq:edge-use-u},\ \eqref{eq:edge-use-v}, \notag\\
+    & \eqref{eq:terminal-used},\ \eqref{eq:terminal-degree},\
+      \eqref{eq:internal-degree}, \notag\\
+    & \eqref{eq:fixed-used}-\eqref{eq:fixed-pattern-off}, \notag\\
+    & \eqref{eq:flow-capacity}-\eqref{eq:flow-balance}, \notag\\
+    & y_v \in \{0,1\} && \forall v \in V, \label{eq:tracks-complete-y}\\
+    & x_e \in \{0,1\} && \forall e \in E, \label{eq:tracks-complete-x}\\
     & f_{uv} \geq 0 && \forall (u,v) \in A.
-\end{aligned}
-\]
+    \label{eq:tracks-complete-f}
+\end{align}
+\end{subequations}
 Any feasible solution to this mixed-integer linear model is a valid solution of the corresponding Tracks instance.
+
+\subsection{Equivalence Between the Model and the Puzzle}
+
+The formulation above is intended to be exact with respect to the rules stated
+at the beginning of this section. If a feasible solution of
+\eqref{eq:tracks-complete-milp} is given, the set
+\(\{v \in V : y_v=1\}\) defines the occupied cells and the set
+\(\{e \in E : x_e=1\}\) defines the railway continuations. The row and column
+constraints guarantee that the numerical clues are satisfied. The incidence
+constraints ensure that selected edges only join occupied cells. The terminal
+and degree constraints force the selected subgraph to have exactly two
+endpoints, namely \(s\) and \(t\), and forbid branches. Finally, the flow
+constraints guarantee that all selected cells lie in the same connected
+component. Hence the selected subgraph is a single simple path from \(s\) to
+\(t\), with no detached loop or extra component.
+
+Conversely, any valid solution of the puzzle can be encoded by setting
+\(y_v=1\) exactly on the cells used by the railway route, \(x_e=1\) exactly on
+the adjacencies followed by the route, and by sending one unit of auxiliary
+flow from the start terminal to each other used cell along the path. This
+assignment satisfies every constraint of \eqref{eq:tracks-complete-milp}.
+Therefore, the model is not merely a relaxation of the game rules; it is a
+linear feasibility representation of them.
 
 \subsection{Modeling Remarks and Interpretation}
 
 The formulation deliberately separates the two main aspects of the puzzle. The variables \(y_v\) encode occupancy information and make it possible to express the row and column clues in a compact way. The variables \(x_e\) describe the actual geometry of the railway route through adjacency choices and degree constraints. The flow variables then provide the global certificate that the selected subgraph is connected.
 
-An alternative to the flow formulation would be a family of cut constraints of the form
+The flow formulation used here is not the only possible way to impose
+connectivity. An alternative would be a family of cut constraints of the form
 \[
+\begin{aligned}
     \sum_{e \in \delta(S)} x_e \geq y_v
-    \qquad \forall S \subseteq V \setminus \{s\},\ \forall v \in S,
+    \qquad
+    \forall S \subseteq V \setminus \{s\},\ \forall v \in S.
+\end{aligned}
 \]
-which enforces that every selected subset not containing the source is connected to the rest of the route. Such constraints are valid, but they are exponential in number and are usually handled by separation procedures or lazy constraints. For a first rigorous formulation, the flow-based model is more direct and easier to integrate into a standard MILP solver.
+These constraints enforce that every selected subset not containing the source
+is connected to the rest of the route. They are valid, but they are
+exponential in number and would require an additional separation mechanism in
+practice. For Tracks, whose connectivity rule can be written compactly enough
+through a single-commodity flow model, the flow formulation is more direct and
+is the exact approach retained in this project.
 
-This mathematical model therefore provides a precise and rigorous description of Tracks as a graph-based feasibility problem. It also establishes the conceptual basis for the solver that will later be implemented in Python, while keeping the present stage of the report focused on modeling rather than implementation.
+This mathematical model therefore provides a precise and rigorous description
+of Tracks as a graph-based feasibility problem. It also establishes the
+conceptual basis for the Python implementation described in the next section.

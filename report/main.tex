@@ -30,9 +30,62 @@ Palaiseau, France}
 \maketitle
 \thispagestyle{plain}
 
+\begin{abstract}
+This report presents a graph-based mixed-integer formulation and Python
+implementation for the \textit{Tracks} logic puzzle. A rectangular puzzle grid
+is modeled as an undirected grid graph, where cells are vertices and admissible
+track continuities are edges. The puzzle is treated as a feasibility problem:
+the objective is to find a single railway path between two prescribed terminals
+while satisfying row and column clues, fixed hints, local degree rules, and
+global connectedness. The formulation uses binary cell and edge variables
+together with a single-commodity flow certificate that eliminates disconnected
+cycles and extra components. The implementation translates this model into a
+PuLP/CBC solver, an independent validator, constructive instance generation,
+course-compatible workflow wrappers, dataset-solving tools, and a Pygame
+interface for visualization and interactive experimentation. Computational
+tests on generated instances from \(5\times5\) to \(16\times16\) illustrate
+the complete modeling-to-code pipeline and the practical role of the flow
+connectivity formulation.
+\end{abstract}
+
+\begin{IEEEkeywords}
+graph theory, mixed-integer linear programming, feasibility problem, puzzle
+solving, connectivity constraints, Pygame
+\end{IEEEkeywords}
+
 \input{sections/01_introduction.tex}
 \input{sections/02_mathematical_model.tex}
 \input{sections/03_methodology.tex}
 \input{sections/04_results.tex}
+\input{sections/05_conclusion.tex}
+
+\begin{thebibliography}{00}
+\bibitem{garey1979}
+M. R. Garey and D. S. Johnson, \emph{Computers and Intractability: A Guide to
+the Theory of NP-Completeness}. W. H. Freeman, 1979.
+
+\bibitem{validi2022}
+H. Validi, A. Buchanan, and E. Lykhovyd, ``Imposing contiguity constraints in
+political districting models,'' \emph{Operations Research}, vol. 70, no. 2,
+pp. 867--892, 2022, doi: 10.1287/opre.2021.2141.
+
+\bibitem{miyazawa2021}
+F. K. Miyazawa, P. F. S. Moura, M. J. Ota, and Y. Wakabayashi,
+``Partitioning a graph into balanced connected classes: Formulations,
+separation and experiments,'' \emph{European Journal of Operational Research},
+vol. 293, no. 3, pp. 826--836, 2021, doi: 10.1016/j.ejor.2020.12.059.
+
+\bibitem{ahuja1993}
+R. K. Ahuja, T. L. Magnanti, and J. B. Orlin, \emph{Network Flows: Theory,
+Algorithms, and Applications}. Prentice Hall, 1993.
+
+\bibitem{python}
+Python Software Foundation, ``Python Language Reference,'' 2026. [Online].
+Available: \url{https://www.python.org}
+
+\bibitem{pulp}
+S. Mitchell, M. O'Sullivan, and I. Dunning, ``PuLP: A linear programming
+toolkit for Python,'' 2011.
+\end{thebibliography}
 
 \end{document}

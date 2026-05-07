@@ -1,7 +1,41 @@
 \section{Introduction}
 
-Tracks is a logic puzzle defined on a rectangular grid. Two terminals are prescribed on the board, and the objective is to construct a railway route connecting them. The solution must satisfy two families of conditions simultaneously. On the one hand, the route must be locally and globally consistent: neighboring track pieces must match, the structure must not branch, and the final railway must form a single valid route between the prescribed terminals. On the other hand, the number of cells occupied by the route in each row and in each column must match the clues written on the boundary of the grid.
+Tracks is a logic puzzle defined on a rectangular grid. Two terminals are
+prescribed on the board, and the objective is to construct a railway route
+connecting them. The solution must satisfy two families of conditions
+simultaneously. On the one hand, the route must be locally and globally
+consistent: neighboring track pieces must match, the structure must not branch,
+and the final railway must form a single valid route between the prescribed
+terminals. On the other hand, the number of cells occupied by the route in each
+row and in each column must match the clues written on the boundary of the
+grid.
 
-From the perspective of operations research, Tracks is naturally interpreted as a discrete feasibility problem on a graph. The combinatorial difficulty does not only come from counting constraints, but also from the global structure of the route. Local consistency constraints are not sufficient, since they allow disconnected components or isolated cycles. A rigorous model must therefore combine binary selection variables, degree conditions, and explicit connectivity constraints.
+From the perspective of operations research, Tracks is naturally interpreted
+as a discrete feasibility problem on a graph. The combinatorial difficulty does
+not only come from counting constraints, but also from the global structure of
+the route. Local consistency constraints are not sufficient, since they allow
+disconnected components or isolated cycles. A rigorous model must therefore
+combine binary selection variables, degree conditions, and explicit
+connectivity constraints. This places the puzzle in the same mathematical
+family as several classical discrete-optimization problems in which a subset
+of vertices must satisfy both local incidence constraints and a global
+connectedness property.
 
-The report begins with this mathematical viewpoint. The grid is first represented as a graph, then the puzzle rules are translated into a mixed-integer linear formulation. This provides a precise feasibility model that will later serve as the foundation for the Python implementation of the solver.
+This structure makes Tracks a compact case study for graph modeling. Each cell
+of the puzzle becomes a vertex, each possible continuation between
+orthogonally adjacent cells becomes an edge, and the final railway must be a
+simple path. Graph-theoretic notions such as degree, path, cycle, connected
+component, cut, and flow therefore provide a precise language for expressing
+the rules of the game. The use of network-flow ideas is particularly natural:
+flow can certify that every selected cell is reachable from a terminal, which
+is exactly the property that local track-piece compatibility cannot guarantee
+on its own \cite{ahuja1993,validi2022,miyazawa2021}.
+
+The project follows this mathematical viewpoint from the model to the
+implementation. The grid is first represented as a graph, then the puzzle
+rules are translated into a mixed-integer linear formulation, and finally the
+formulation is implemented in Python using a standard MILP backend. The same
+objects also support parsing, validation, generation, dataset solving, and
+visualization. The purpose of the report is therefore not only to present a
+solver, but also to show how a visually simple puzzle can be handled as a
+complete graph-based feasibility problem.
