@@ -315,7 +315,7 @@ Advantage:
 Disadvantage:
 
 - exponentially many potential cuts;
-- often implemented with lazy constraints or separation procedures.
+- they require an additional separation mechanism in practice.
 
 ### Subtour-style elimination
 

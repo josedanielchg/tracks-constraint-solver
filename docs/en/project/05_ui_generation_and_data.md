@@ -212,7 +212,7 @@ Current keyboard behavior in the viewer:
 - `Space`: toggle solution visibility
 - `R`: reset to the base solution state
 
-The `TracksViewer` class also contains a hook for solving during the session if a solver callback
+The `TracksViewer` class also contains a hook for solving during the session if a solve function
 is supplied by the caller. In the current command-line workflow, the instance is solved before the
 viewer opens, so the displayed route is already known.
 

@@ -107,7 +107,7 @@ So degree constraints guarantee local consistency, not global uniqueness of the 
 ### Why use a flow formulation?
 
 Because it is a standard and rigorous way to force every selected cell to be reachable from the
-source. It is easier to implement as a compact first MILP than a full lazy-cut framework.
+source. It gives the project a direct exact formulation without adding a second solving strategy.
 
 ### How is the mathematical model reflected in code?
 
