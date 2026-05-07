@@ -28,7 +28,11 @@ class TracksViewer:
         self.height = height
         self.clue_margin = clue_margin
         self.background_color = (255, 255, 255)
-        self.fixed_cell_color = (205, 205, 205)
+        self.fixed_used_cell_color = (255, 244, 181)
+        self.fixed_edge_cell_color = (183, 228, 255)
+        self.fixed_pattern_cell_color = (203, 186, 255)
+        self.fixed_empty_cell_color = (0, 0, 0)
+        self.fixed_cell_color = self.fixed_used_cell_color
         self.foreground_color = (0, 0, 0)
         self.track_width = 4
 
@@ -57,7 +61,7 @@ class TracksViewer:
         instance: TracksInstance,
         solution: TracksSolution | None = None,
         *,
-        solver_callback=None,
+        solve_fn=None,
     ) -> None:
         """Open a window and let the user inspect the puzzle."""
         pygame.init()
@@ -81,8 +85,8 @@ class TracksViewer:
                     elif event.key == pygame.K_r:
                         current_solution = base_solution
                         show_solution = current_solution is not None
-                    elif event.key == pygame.K_s and solver_callback is not None:
-                        current_solution = solver_callback(instance)
+                    elif event.key == pygame.K_s and solve_fn is not None:
+                        current_solution = solve_fn(instance)
                         if current_solution is not None:
                             base_solution = current_solution
                             show_solution = True
@@ -109,14 +113,14 @@ class TracksViewer:
         )
 
     def _draw_grid(self, surface: pygame.Surface, instance: TracksInstance, layout: ViewerLayout) -> None:
-        for row, col in self._fixed_cells(instance):
+        for (row, col), color in self._fixed_cell_colors(instance).items():
             cell_rect = pygame.Rect(
                 layout.margin_left + col * layout.cell_size + 1,
                 layout.margin_top + row * layout.cell_size + 1,
                 layout.cell_size - 1,
                 layout.cell_size - 1,
             )
-            pygame.draw.rect(surface, self.fixed_cell_color, cell_rect)
+            pygame.draw.rect(surface, color, cell_rect)
 
         for row in range(instance.rows + 1):
             y = layout.margin_top + row * layout.cell_size
@@ -226,11 +230,22 @@ class TracksViewer:
         return endpoints
 
     def _fixed_cells(self, instance: TracksInstance) -> set[tuple[int, int]]:
-        cells = set(instance.fixed_used) | set(instance.fixed_empty) | set(instance.fixed_patterns)
+        return set(self._fixed_cell_colors(instance))
+
+    def _fixed_cell_colors(self, instance: TracksInstance) -> dict[tuple[int, int], tuple[int, int, int]]:
+        colors: dict[tuple[int, int], tuple[int, int, int]] = {}
+
+        for cell in instance.fixed_used:
+            colors[cell] = self.fixed_used_cell_color
+        for cell in instance.fixed_empty:
+            colors[cell] = self.fixed_empty_cell_color
         for first, second in instance.fixed_edges:
-            cells.add(first)
-            cells.add(second)
-        return cells
+            colors.setdefault(first, self.fixed_edge_cell_color)
+            colors.setdefault(second, self.fixed_edge_cell_color)
+        for cell in instance.fixed_patterns:
+            colors[cell] = self.fixed_pattern_cell_color
+
+        return colors
 
     def _cell_center(self, cell: tuple[int, int], layout: ViewerLayout) -> tuple[int, int]:
         row, col = cell

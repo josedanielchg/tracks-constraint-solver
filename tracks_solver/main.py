@@ -10,7 +10,7 @@ import pygame
 
 from tracks_solver.core import format_tracks_board, parse_tracks_instance
 from tracks_solver.solver import SolverUnavailableError, solve_tracks_instance
-from tracks_solver.ui import TracksViewer
+from tracks_solver.ui import TracksGame, TracksViewer
 
 
 def build_status_report() -> str:
@@ -32,6 +32,7 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Tracks solver bootstrap entrypoint.")
     parser.add_argument("instance", nargs="?", help="Path to a Tracks instance file.")
     parser.add_argument("--ui", action="store_true", help="Open the Pygame viewer.")
+    parser.add_argument("--play", action="store_true", help="Open the playable Pygame UI.")
     parser.add_argument(
         "--time-limit",
         type=float,
@@ -44,6 +45,13 @@ def main(argv: list[str] | None = None) -> None:
         help="Show the MILP solver log in the terminal.",
     )
     args = parser.parse_args(argv)
+
+    if args.play:
+        game = TracksGame()
+        if args.instance:
+            game.start_board(parse_tracks_instance(args.instance))
+        game.run()
+        return
 
     if not args.instance:
         print(build_status_report())
