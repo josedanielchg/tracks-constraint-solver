@@ -1,0 +1,8 @@
+rows=6
+cols=6
+start=0,0
+end=5,5
+row_clues=1,4,2,1,1,2
+col_clues=2,1,1,2,4,1
+fixed_used=0,0;1,2;1,3;3,4;4,4;5,5
+fixed_edges=0,0-1,0;1,1-1,2;3,4-4,4

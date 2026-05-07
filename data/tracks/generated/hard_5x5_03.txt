@@ -1,0 +1,8 @@
+rows=5
+cols=5
+start=0,0
+end=4,4
+row_clues=5,5,5,5,5
+col_clues=5,5,5,5,5
+fixed_used=0,0;4,3;4,4
+fixed_edges=0,4-1,4

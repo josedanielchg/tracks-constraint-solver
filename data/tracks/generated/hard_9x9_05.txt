@@ -1,0 +1,8 @@
+rows=9
+cols=9
+start=0,0
+end=8,8
+row_clues=5,5,5,5,5,5,5,5,9
+col_clues=9,9,9,9,9,1,1,1,1
+fixed_used=0,0;0,2;8,3;8,8
+fixed_edges=2,2-3,2;7,0-8,0
