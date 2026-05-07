@@ -41,6 +41,12 @@ def generate_random_path(
     if min_length > rows * cols:
         raise ValueError("min_length cannot exceed the number of cells in the grid")
 
+    if min_length == shortest_possible:
+        return _generate_manhattan_path(start, end, rng)
+
+    if start == (0, 0) and end == (rows - 1, cols - 1) and min_length > shortest_possible:
+        return _generate_serpentine_path(rows, cols, rng, min_length)
+
     def neighbor_cells(cell: tuple[int, int]) -> list[tuple[int, int]]:
         row, col = cell
         candidates = [(row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)]
@@ -72,6 +78,74 @@ def generate_random_path(
             return path.copy()
 
     raise RuntimeError("Could not generate a valid random path after several attempts")
+
+
+def _generate_manhattan_path(
+    start: tuple[int, int],
+    end: tuple[int, int],
+    rng: random.Random,
+) -> list[tuple[int, int]]:
+    """Generate a randomized shortest monotone path between two cells."""
+    row_delta = end[0] - start[0]
+    col_delta = end[1] - start[1]
+    row_step = 1 if row_delta >= 0 else -1
+    col_step = 1 if col_delta >= 0 else -1
+    moves = [(row_step, 0)] * abs(row_delta) + [(0, col_step)] * abs(col_delta)
+    rng.shuffle(moves)
+
+    path = [start]
+    current = start
+    for delta_row, delta_col in moves:
+        current = (current[0] + delta_row, current[1] + delta_col)
+        path.append(current)
+    return path
+
+
+def _generate_serpentine_path(
+    rows: int,
+    cols: int,
+    rng: random.Random,
+    min_length: int,
+) -> list[tuple[int, int]]:
+    """Generate a long simple path from the top-left to the bottom-right cell."""
+    row_candidates = [
+        swept_rows
+        for swept_rows in range(1, rows + 1, 2)
+        if swept_rows * cols + (rows - swept_rows) >= min_length
+    ]
+    col_candidates = [
+        swept_cols
+        for swept_cols in range(1, cols + 1, 2)
+        if swept_cols * rows + (cols - swept_cols) >= min_length
+    ]
+
+    choices: list[tuple[str, int]] = [("rows", value) for value in row_candidates]
+    choices.extend(("cols", value) for value in col_candidates)
+    if not choices:
+        raise RuntimeError("Could not construct a long enough serpentine path")
+
+    orientation, sweep_count = rng.choice(choices)
+    if orientation == "rows":
+        return _row_serpentine_path(rows, cols, sweep_count)
+    return _column_serpentine_path(rows, cols, sweep_count)
+
+
+def _row_serpentine_path(rows: int, cols: int, swept_rows: int) -> list[tuple[int, int]]:
+    path: list[tuple[int, int]] = []
+    for row in range(swept_rows):
+        col_range = range(cols) if row % 2 == 0 else range(cols - 1, -1, -1)
+        path.extend((row, col) for col in col_range)
+    path.extend((row, cols - 1) for row in range(swept_rows, rows))
+    return path
+
+
+def _column_serpentine_path(rows: int, cols: int, swept_cols: int) -> list[tuple[int, int]]:
+    path: list[tuple[int, int]] = []
+    for col in range(swept_cols):
+        row_range = range(rows) if col % 2 == 0 else range(rows - 1, -1, -1)
+        path.extend((row, col) for row in row_range)
+    path.extend((rows - 1, col) for col in range(swept_cols, cols))
+    return path
 
 
 def build_instance_from_path(
@@ -148,6 +222,33 @@ def generate_tracks_instance(
         fixed_used=hint_used,
         fixed_edges=hint_edges,
     )
+
+
+def difficulty_generation_params(rows: int, cols: int, difficulty: str) -> dict[str, int]:
+    """Return generation parameters for a named Tracks difficulty."""
+    normalized = difficulty.strip().lower()
+    area = rows * cols
+    shortest_path_length = rows + cols - 1
+
+    if normalized == "easy":
+        return {
+            "min_path_length": shortest_path_length,
+            "fixed_used_hints": max(1, area // 8),
+            "fixed_edge_hints": max(1, area // 10),
+        }
+    if normalized == "medium":
+        return {
+            "min_path_length": max(shortest_path_length, area // 3),
+            "fixed_used_hints": max(1, area // 16),
+            "fixed_edge_hints": max(1, area // 18),
+        }
+    if normalized == "hard":
+        return {
+            "min_path_length": max(shortest_path_length, area // 2),
+            "fixed_used_hints": max(1, area // 32),
+            "fixed_edge_hints": max(1, area // 40),
+        }
+    raise ValueError("difficulty must be one of Easy, Medium, or Hard")
 
 
 def serialize_tracks_instance(instance: TracksInstance) -> str:

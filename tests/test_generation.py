@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from tracks_solver.core import parse_tracks_instance_text
 from tracks_solver.generation import (
+    difficulty_generation_params,
     generate_random_path,
     generate_tracks_instance,
     serialize_tracks_instance,
@@ -23,6 +24,15 @@ def test_generate_random_path_returns_a_simple_adjacent_path() -> None:
         assert abs(first[0] - second[0]) + abs(first[1] - second[1]) == 1
 
 
+def test_generate_random_path_uses_fast_manhattan_for_shortest_paths() -> None:
+    path = generate_random_path(10, 10, seed=31, min_length=19)
+
+    assert len(path) == 19
+    assert len(path) == len(set(path))
+    assert path[0] == (0, 0)
+    assert path[-1] == (9, 9)
+
+
 def test_generated_instance_round_trips_through_the_parser() -> None:
     instance = generate_tracks_instance(4, 4, seed=11, min_path_length=7, fixed_used_hints=1)
 
@@ -32,6 +42,18 @@ def test_generated_instance_round_trips_through_the_parser() -> None:
     assert reparsed == instance
 
 
+def test_generate_random_path_uses_fast_serpentine_for_long_paths() -> None:
+    path = generate_random_path(8, 8, seed=17, min_length=32)
+
+    assert len(path) >= 32
+    assert len(path) == len(set(path))
+    assert path[0] == (0, 0)
+    assert path[-1] == (7, 7)
+
+    for first, second in zip(path, path[1:]):
+        assert abs(first[0] - second[0]) + abs(first[1] - second[1]) == 1
+
+
 def test_solver_can_solve_a_generated_instance() -> None:
     instance = generate_tracks_instance(4, 4, seed=13, min_path_length=7)
 
@@ -39,3 +61,14 @@ def test_solver_can_solve_a_generated_instance() -> None:
 
     assert solution.status == "optimal"
     assert solution.metadata["validation_passed"] is True
+
+
+def test_difficulty_generation_params_scale_with_grid_size() -> None:
+    easy = difficulty_generation_params(6, 6, "Easy")
+    medium = difficulty_generation_params(6, 6, "Medium")
+    hard = difficulty_generation_params(6, 6, "Hard")
+
+    assert easy["min_path_length"] == 11
+    assert medium["min_path_length"] == 12
+    assert hard["min_path_length"] == 18
+    assert easy["fixed_used_hints"] > medium["fixed_used_hints"] > hard["fixed_used_hints"]
