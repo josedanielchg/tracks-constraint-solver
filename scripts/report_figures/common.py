@@ -68,6 +68,38 @@ def mean_numeric(rows: Iterable[dict[str, str]], key: str) -> float:
     return mean(values) if values else 0.0
 
 
+def benchmark_summary(rows: Iterable[dict[str, str]]) -> dict[str, object]:
+    """Compute one aggregate summary over the generated benchmark CSV."""
+    row_list = list(rows)
+    valid_rows = [row for row in row_list if row.get("generation_status") != "error"]
+    hard_rows = [row for row in valid_rows if row.get("difficulty") == "Hard"]
+
+    summary: dict[str, object] = {
+        "total_instances": len(row_list),
+        "generated_instances": len(valid_rows),
+        "solved_instances": sum(1 for row in valid_rows if is_true(row.get("is_optimal"))),
+        "validated_instances": sum(1 for row in valid_rows if is_true(row.get("validation_passed"))),
+        "average_solve_time_by_difficulty": {},
+        "average_generation_time_by_difficulty": {},
+        "hard_generation_min_ms": 0.0,
+        "hard_generation_max_ms": 0.0,
+    }
+
+    for difficulty in DIFFICULTIES:
+        difficulty_rows = [row for row in valid_rows if row.get("difficulty") == difficulty]
+        summary["average_solve_time_by_difficulty"][difficulty] = mean_solve_time(difficulty_rows)
+        summary["average_generation_time_by_difficulty"][difficulty] = (
+            mean_numeric(difficulty_rows, "generation_time") * 1000.0
+        )
+
+    if hard_rows:
+        hard_generation_times = [as_float(row.get("generation_time")) * 1000.0 for row in hard_rows]
+        summary["hard_generation_min_ms"] = min(hard_generation_times)
+        summary["hard_generation_max_ms"] = max(hard_generation_times)
+
+    return summary
+
+
 def configure_matplotlib() -> None:
     """Use a deterministic non-interactive plot style."""
     import matplotlib

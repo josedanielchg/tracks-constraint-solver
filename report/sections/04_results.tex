@@ -74,16 +74,18 @@ separate through the global flow constraints.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{sections/images/tracks_hard_threshold_generation_vs_solver.png}
-\caption{Generation time and exact-flow solve time for Hard generated
-instances as the board size increases.}
+\caption{Generation time in milliseconds on the secondary axis and exact-flow
+solve time in seconds on the primary axis for Hard generated instances as the
+board size increases.}
 \label{fig:hard-threshold-generation-vs-solver}
 \end{figure}
 
 Fig.~\ref{fig:hard-threshold-generation-vs-solver} compares the two costs
 involved in the empirical Hard profile: constructing a valid instance and
-solving it exactly with the flow MILP. Generation remains almost negligible
-because the generator first builds a valid path and then derives row and
-column clues from it. The solve time is larger and grows with the board size,
+solving it exactly with the flow MILP. The generation curve is shown on a
+secondary axis in milliseconds because its values are sub-millisecond, ranging
+roughly from \(0.17\) ms to \(0.75\) ms in the current benchmark. The solve
+time is shown on the primary axis in seconds and grows with the board size,
 from approximately \(0.048\) s on \(5\times5\) boards to approximately
 \(0.333\) s on \(16\times16\) boards. This confirms that the exact
 connectivity model is the dominant computational component of the pipeline.
