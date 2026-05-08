@@ -246,12 +246,14 @@ def results_array(
 
 
 def _ensure_instance(instance: TracksInstance | str | Path) -> TracksInstance:
+    """Return an instance object, parsing paths when needed."""
     if isinstance(instance, TracksInstance):
         return instance
     return read_input_file(instance)
 
 
 def _write_result_file(path: Path, row: dict[str, object], solution: TracksSolution) -> None:
+    """Write one course-style text result file."""
     path.parent.mkdir(parents=True, exist_ok=True)
     used_cells = sorted(solution.used_cells)
     selected_edges = sorted(solution.selected_edges)
@@ -271,6 +273,7 @@ def _write_result_file(path: Path, row: dict[str, object], solution: TracksSolut
 
 
 def _read_result_file(path: Path) -> dict[str, object]:
+    """Read one course-style text result file into a dictionary."""
     row: dict[str, object] = {}
     for raw_line in path.read_text(encoding="utf-8").splitlines():
         if "=" not in raw_line:
@@ -284,6 +287,7 @@ def _read_result_file(path: Path) -> dict[str, object]:
 
 
 def _write_csv_summary(path: str | Path, rows: list[dict[str, object]]) -> None:
+    """Write a CSV summary for solved dataset rows."""
     output_path = Path(path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = [
@@ -303,12 +307,14 @@ def _write_csv_summary(path: str | Path, rows: list[dict[str, object]]) -> None:
 
 
 def _format_float(value: object) -> str:
+    """Format numeric values for the LaTeX result table."""
     if isinstance(value, (int, float)):
         return f"{float(value):.3f}"
     return str(value)
 
 
 def _parse_sizes(raw_sizes: str) -> list[tuple[int, int]]:
+    """Parse CLI board sizes written as 5x5,6x6."""
     sizes: list[tuple[int, int]] = []
     for raw_size in raw_sizes.split(","):
         token = raw_size.strip().lower()
@@ -338,6 +344,7 @@ def _parse_sizes(raw_sizes: str) -> list[tuple[int, int]]:
 
 
 def _cmd_generate_instance(args: argparse.Namespace) -> int:
+    """CLI handler that creates and saves one instance."""
     output_path = Path(args.output)
     instance = generate_instance(
         args.rows,
@@ -355,11 +362,13 @@ def _cmd_generate_instance(args: argparse.Namespace) -> int:
 
 
 def _cmd_display_grid(args: argparse.Namespace) -> int:
+    """CLI handler that prints an unresolved grid."""
     display_grid(args.instance)
     return 0
 
 
 def _cmd_solve_instance(args: argparse.Namespace) -> int:
+    """CLI handler that solves one instance and prints its status."""
     try:
         is_optimal, solve_time, solution = milp_solve(
             args.instance,
@@ -385,6 +394,7 @@ def _cmd_solve_instance(args: argparse.Namespace) -> int:
 
 
 def _cmd_open_ui(args: argparse.Namespace) -> int:
+    """CLI handler that solves one instance and opens the viewer."""
     try:
         _, _, solution = milp_solve(
             args.instance,
@@ -404,6 +414,7 @@ def _cmd_open_ui(args: argparse.Namespace) -> int:
 
 
 def _cmd_generate_dataset(args: argparse.Namespace) -> int:
+    """CLI handler that creates a small generated dataset."""
     generated = generate_data_set(
         args.output_dir,
         sizes=args.sizes,
@@ -418,6 +429,7 @@ def _cmd_generate_dataset(args: argparse.Namespace) -> int:
 
 
 def _cmd_solve_dataset(args: argparse.Namespace) -> int:
+    """CLI handler that solves every instance in a directory."""
     try:
         rows = solve_data_set(
             args.input_dir,
@@ -441,6 +453,7 @@ def _cmd_solve_dataset(args: argparse.Namespace) -> int:
 
 
 def _cmd_results_table(args: argparse.Namespace) -> int:
+    """CLI handler that builds the LaTeX result table."""
     output_path = results_array(args.output, result_dir=args.result_dir)
     print(f"tablePath = {output_path}")
     return 0

@@ -24,6 +24,7 @@ class ValidationResult:
     errors: tuple[str, ...] = ()
 
     def __bool__(self) -> bool:
+        """Allow validation results to be used directly in conditions."""
         return self.is_valid
 
 
@@ -153,6 +154,7 @@ def _reachable_used_cells(
     adjacency: dict[Cell, set[Cell]],
     used_cells: set[Cell],
 ) -> set[Cell]:
+    """Return all used cells reachable from the start cell."""
     visited: set[Cell] = set()
     queue: deque[Cell] = deque([start])
 

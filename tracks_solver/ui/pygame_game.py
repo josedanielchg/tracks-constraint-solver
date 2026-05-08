@@ -86,6 +86,7 @@ class PlayerBoardState:
 
     @classmethod
     def from_instance(cls, instance: TracksInstance) -> "PlayerBoardState":
+        """Create a player board initialized with fixed hints."""
         patterns: dict[Cell, tuple[Direction, ...]] = {}
         # Start the player board with every fixed requirement already visible.
         for cell in sorted(instance.fixed_patterns):
@@ -152,6 +153,7 @@ class TracksGame:
     """Menu-driven playable Tracks UI."""
 
     def __init__(self, *, width: int = 1180, height: int = 820) -> None:
+        """Create the playable UI state."""
         self.width = width
         self.height = height
         self.board_size = min(height, 820)
@@ -239,6 +241,7 @@ class TracksGame:
         self.mode = "board"
 
     def _draw_home_screen(self, surface: pygame.Surface) -> None:
+        """Draw the home screen with generation and load options."""
         title_font = pygame.font.Font(None, 56)
         font = pygame.font.Font(None, 30)
         small_font = pygame.font.Font(None, 24)
@@ -299,6 +302,7 @@ class TracksGame:
             self._draw_centered_text(surface, small_font, self.status_message, (self.width // 2, self.height - 45))
 
     def _draw_board_screen(self, surface: pygame.Surface) -> None:
+        """Draw the board screen, controls, legend, and status text."""
         assert self.instance is not None
         assert self.player_state is not None
 
@@ -324,6 +328,7 @@ class TracksGame:
             self._draw_wrapped_text(surface, small_font, self.status_message, (self.panel_left, 650), 300)
 
     def _draw_legend(self, surface: pygame.Surface, font: pygame.font.Font, x: int, y: int) -> None:
+        """Draw the side legend for fixed puzzle hints."""
         # Legend colors explain what each fixed hint means during play.
         colors = {
             "fixed_used": self.viewer.fixed_used_cell_color,
@@ -344,6 +349,7 @@ class TracksGame:
             self._draw_wrapped_text(surface, font, description, (x + 36, row_y + 23), 280)
 
     def _draw_player_tracks(self, surface: pygame.Surface, player_state: PlayerBoardState) -> None:
+        """Draw the route currently entered by the player."""
         layout = self.viewer._build_layout(player_state.instance)
         for cell, pattern in player_state.patterns.items():
             if not pattern:
@@ -363,6 +369,7 @@ class TracksGame:
         self.viewer._draw_terminals(surface, player_state.instance, layout, font)
 
     def _dispatch_action(self, action: str) -> None:
+        """Run the action associated with a clicked UI button."""
         # Menu and board buttons are routed through one small dispatcher.
         if action == "cycle_size":
             self.size_index = (self.size_index + 1) % len(GRID_SIZE_OPTIONS)
@@ -385,6 +392,7 @@ class TracksGame:
             self._show_exact_solution()
 
     def _start_generated_game(self) -> None:
+        """Generate a new in-memory game from the selected settings."""
         rows, cols = GRID_SIZE_OPTIONS[self.size_index]
         difficulty = DIFFICULTY_OPTIONS[self.difficulty_index]
         params = difficulty_generation_params(rows, cols, difficulty)
@@ -397,6 +405,7 @@ class TracksGame:
         self.start_board(instance, status_message=f"Generated {difficulty} {rows}x{cols}")
 
     def _load_selected_map(self) -> None:
+        """Load the currently selected map from disk."""
         if not self.map_paths:
             self.status_message = "No maps available"
             return
@@ -407,6 +416,7 @@ class TracksGame:
             self.status_message = f"Could not load map: {exc}"
 
     def _check_player_solution(self) -> None:
+        """Validate the player's current route and show one message."""
         assert self.instance is not None
         assert self.player_state is not None
         result = validate_solution(self.instance, self.player_state.to_solution())
@@ -418,6 +428,7 @@ class TracksGame:
             self.status_message = "Invalid solution"
 
     def _show_exact_solution(self) -> None:
+        """Solve the current board and toggle the exact solution overlay."""
         assert self.instance is not None
         if self.solution is None:
             # Large loaded boards get a longer limit because they can be harder.
@@ -435,6 +446,7 @@ class TracksGame:
         self.status_message = "Showing solution" if self.show_solution else "Showing your board"
 
     def _cell_at_position(self, position: tuple[int, int]) -> Cell | None:
+        """Convert a mouse position into a grid cell when possible."""
         assert self.instance is not None
         x, y = position
         layout = self.viewer._build_layout(self.instance)
@@ -452,6 +464,7 @@ class TracksGame:
         return None
 
     def _add_button(self, surface: pygame.Surface, label: str, rect: pygame.Rect, action: str) -> None:
+        """Draw a button and remember its click action."""
         self.buttons.append(Button(label=label, rect=rect, action=action))
         pygame.draw.rect(surface, (245, 245, 245), rect)
         pygame.draw.rect(surface, (0, 0, 0), rect, 2)
@@ -460,6 +473,7 @@ class TracksGame:
         surface.blit(text, text.get_rect(center=rect.center))
 
     def _home_panel_rects(self) -> tuple[pygame.Rect, pygame.Rect]:
+        """Return the two centered panel rectangles for the home screen."""
         panel_width = min(680, max(320, self.width - 120))
         panel_x = (self.width - panel_width) // 2
         new_game_panel = pygame.Rect(panel_x, 115, panel_width, 250)
@@ -467,6 +481,7 @@ class TracksGame:
         return new_game_panel, load_map_panel
 
     def _draw_panel(self, surface: pygame.Surface, rect: pygame.Rect) -> None:
+        """Draw a simple white panel with a black border."""
         pygame.draw.rect(surface, (255, 255, 255), rect)
         pygame.draw.rect(surface, (0, 0, 0), rect, 2)
 
@@ -479,6 +494,7 @@ class TracksGame:
         *,
         color: tuple[int, int, int] = (0, 0, 0),
     ) -> None:
+        """Draw text centered at a given position."""
         rendered = font.render(text, True, color)
         surface.blit(rendered, rendered.get_rect(center=center))
 
@@ -491,6 +507,7 @@ class TracksGame:
         *,
         color: tuple[int, int, int] = (0, 0, 0),
     ) -> None:
+        """Draw text with its top-left corner at a position."""
         rendered = font.render(text, True, color)
         surface.blit(rendered, position)
 
@@ -502,6 +519,7 @@ class TracksGame:
         position: tuple[int, int],
         width: int,
     ) -> None:
+        """Draw text split across multiple lines inside a width."""
         x, y = position
         line = ""
         for word in text.split():
@@ -551,11 +569,13 @@ def allowed_patterns_for_cell(instance: TracksInstance, cell: Cell) -> list[tupl
 
 
 def _default_pattern_for_cell(instance: TracksInstance, cell: Cell) -> tuple[Direction, ...]:
+    """Return the first non-empty allowed pattern for a cell."""
     allowed = [pattern for pattern in allowed_patterns_for_cell(instance, cell) if pattern]
     return allowed[0] if allowed else EMPTY_PATTERN
 
 
 def _is_locked_cell(instance: TracksInstance, cell: Cell) -> bool:
+    """Return whether the player is not allowed to edit a cell."""
     return cell in instance.fixed_empty or cell in instance.fixed_patterns
 
 
@@ -564,6 +584,7 @@ def _pattern_stays_inside(
     cell: Cell,
     pattern: tuple[Direction, ...],
 ) -> bool:
+    """Return whether all directions of a pattern stay inside the board."""
     return all(
         cell_in_bounds(neighbor_in_direction(cell, direction), instance.rows, instance.cols)
         for direction in pattern
@@ -571,6 +592,7 @@ def _pattern_stays_inside(
 
 
 def _required_directions_from_fixed_edges(instance: TracksInstance, cell: Cell) -> set[Direction]:
+    """Return directions that fixed edges force at one cell."""
     directions: set[Direction] = set()
     for first, second in instance.fixed_edges:
         if cell == first:
@@ -581,6 +603,7 @@ def _required_directions_from_fixed_edges(instance: TracksInstance, cell: Cell) 
 
 
 def _direction_between(origin: Cell, target: Cell) -> Direction:
+    """Return the direction from one adjacent cell to another."""
     row_delta = target[0] - origin[0]
     col_delta = target[1] - origin[1]
     if row_delta == -1:
@@ -599,6 +622,7 @@ def _direction_endpoint(
     direction: Direction,
     layout: ViewerLayout,
 ) -> tuple[int, int]:
+    """Return the pixel endpoint of a half-track in one direction."""
     center_x, center_y = center
     half_cell = layout.cell_size // 2
     if direction == "U":
@@ -613,12 +637,14 @@ def _direction_endpoint(
 
 
 def _shorten_label(label: str, *, max_length: int = 56) -> str:
+    """Shorten long map names for the menu."""
     if len(label) <= max_length:
         return label
     return f"{label[: max_length - 3]}..."
 
 
 def _centered_row_x(center_x: int, left_width: int, gap: int, right_width: int) -> int:
+    """Return the left x-coordinate for a centered two-part row."""
     return center_x - (left_width + gap + right_width) // 2
 
 

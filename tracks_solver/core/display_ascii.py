@@ -37,6 +37,7 @@ def _cell_symbol(
     used_cells: set[Cell],
     selected_edges: set[tuple[Cell, Cell]],
 ) -> str:
+    """Return the ASCII character that represents one grid cell."""
     if cell == instance.start:
         return "A"
     if cell == instance.end:
@@ -56,6 +57,7 @@ def _cell_symbol(
 
 
 def _selected_directions(cell: Cell, selected_edges: set[tuple[Cell, Cell]]) -> set[str]:
+    """Return the directions of selected edges incident to one cell."""
     row, col = cell
     directions: set[str] = set()
 

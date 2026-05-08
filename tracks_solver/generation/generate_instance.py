@@ -24,7 +24,7 @@ def generate_random_path(
     min_length: int | None = None,
     max_attempts: int = 200,
 ) -> list[tuple[int, int]]:
-    """Generate a random simple path inside a grid."""
+    """Generate a random simple path that can become a solvable instance."""
     rng = random.Random(seed)
     # By default, generated boards connect the top-left and bottom-right cells.
     start = start or (0, 0)
@@ -51,11 +51,13 @@ def generate_random_path(
         return _generate_serpentine_path(rows, cols, rng, min_length)
 
     def neighbor_cells(cell: tuple[int, int]) -> list[tuple[int, int]]:
+        """Return candidate neighbor cells inside the grid."""
         row, col = cell
         candidates = [(row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)]
         return [candidate for candidate in candidates if cell_in_bounds(candidate, rows, cols)]
 
     def search(current: tuple[int, int], path: list[tuple[int, int]], visited: set[tuple[int, int]]) -> bool:
+        """Try to extend the current simple path until it reaches the end."""
         if current == end:
             return len(path) >= min_length
 
@@ -138,6 +140,7 @@ def _generate_serpentine_path(
 
 
 def _row_serpentine_path(rows: int, cols: int, swept_rows: int) -> list[tuple[int, int]]:
+    """Build a long path by sweeping complete rows first."""
     path: list[tuple[int, int]] = []
     for row in range(swept_rows):
         col_range = range(cols) if row % 2 == 0 else range(cols - 1, -1, -1)
@@ -147,6 +150,7 @@ def _row_serpentine_path(rows: int, cols: int, swept_rows: int) -> list[tuple[in
 
 
 def _column_serpentine_path(rows: int, cols: int, swept_cols: int) -> list[tuple[int, int]]:
+    """Build a long path by sweeping complete columns first."""
     path: list[tuple[int, int]] = []
     for col in range(swept_cols):
         row_range = range(rows) if col % 2 == 0 else range(rows - 1, -1, -1)
@@ -206,7 +210,7 @@ def generate_tracks_instance(
     fixed_used_hints: int = 0,
     fixed_edge_hints: int = 0,
 ) -> TracksInstance:
-    """Generate a Tracks instance with at least one valid solution."""
+    """Generate a Tracks instance by hiding a valid path in the clues."""
     rng = random.Random(seed)
     # Generate the hidden valid route first, then turn it into puzzle data.
     path = generate_random_path(

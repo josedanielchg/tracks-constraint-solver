@@ -22,13 +22,13 @@ def solve_tracks_instance(
     time_limit: float | None = None,
     msg: bool = False,
 ) -> TracksSolution:
-    """Solve a Tracks instance with the flow-based MILP model from the report."""
+    """Build and solve the exact flow-based MILP model."""
     if pulp is None:
         raise SolverUnavailableError(
             "PuLP is not installed. Install the 'pulp' package to use the MILP solver."
         )
 
-    # Build the graph objects that match the notation from the report.
+    # Build the graph objects that match the notation.
     graph = build_grid_graph(instance)
     edge_by_arc = {
         arc: tuple(sorted(arc))
@@ -188,6 +188,7 @@ def solve_tracks_instance(
 
 
 def _normalize_status(raw_status: str) -> str:
+    """Map a raw CBC/PuLP status to the project status names."""
     normalized = raw_status.strip().lower().replace(" ", "_")
     mapping = {
         "optimal": "optimal",

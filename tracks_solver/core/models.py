@@ -108,6 +108,7 @@ class TracksInstance:
     fixed_patterns: dict[Cell, tuple[Direction, ...]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
+        """Normalize and validate all instance data after construction."""
         # Normalize user-provided containers into immutable, deterministic data.
         row_clues = tuple(int(value) for value in self.row_clues)
         col_clues = tuple(int(value) for value in self.col_clues)
@@ -248,5 +249,6 @@ class TracksSolution:
     metadata: dict[str, object] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
+        """Normalize solution cells and edges after construction."""
         self.used_cells = {tuple(cell) for cell in self.used_cells}
         self.selected_edges = {canonical_edge(*edge) for edge in self.selected_edges}

@@ -24,6 +24,7 @@ class TracksViewer:
     """Draw a Tracks instance and, optionally, a solution."""
 
     def __init__(self, *, width: int = 900, height: int = 900, clue_margin: int = 90) -> None:
+        """Create a viewer with fixed window and clue spacing."""
         self.width = width
         self.height = height
         self.clue_margin = clue_margin
@@ -102,6 +103,7 @@ class TracksViewer:
         pygame.quit()
 
     def _build_layout(self, instance: TracksInstance) -> ViewerLayout:
+        """Compute board geometry from the instance size."""
         board_width = self.width - 2 * self.clue_margin
         board_height = self.height - 2 * self.clue_margin
         cell_size = max(20, min(board_width // instance.cols, board_height // instance.rows))
@@ -114,6 +116,7 @@ class TracksViewer:
         )
 
     def _draw_grid(self, surface: pygame.Surface, instance: TracksInstance, layout: ViewerLayout) -> None:
+        """Draw fixed backgrounds and grid lines."""
         # Fixed hints are shaded before drawing the grid lines.
         for (row, col), color in self._fixed_cell_colors(instance).items():
             cell_rect = pygame.Rect(
@@ -151,6 +154,7 @@ class TracksViewer:
         layout: ViewerLayout,
         font: pygame.font.Font,
     ) -> None:
+        """Draw row and column clues around the board."""
         for row, clue in enumerate(instance.row_clues):
             label = font.render(str(clue), True, self.foreground_color)
             label_rect = label.get_rect()
@@ -176,6 +180,7 @@ class TracksViewer:
         layout: ViewerLayout,
         font: pygame.font.Font,
     ) -> None:
+        """Draw the start and end terminal labels."""
         for cell, label_text in ((instance.start, "A"), (instance.end, "B")):
             center = self._cell_center(cell, layout)
             label = font.render(label_text, True, self.foreground_color)
@@ -189,6 +194,7 @@ class TracksViewer:
         solution: TracksSolution,
         layout: ViewerLayout,
     ) -> None:
+        """Draw all selected track segments from a solution."""
         # Tracks are drawn from the center of a cell to the selected neighboring cells.
         for cell in solution.used_cells:
             center = self._cell_center(cell, layout)
@@ -207,6 +213,7 @@ class TracksViewer:
         solution: TracksSolution,
         layout: ViewerLayout,
     ) -> list[tuple[int, int]]:
+        """Return drawing endpoints for the selected edges touching a cell."""
         row, col = cell
         center_x, center_y = self._cell_center(cell, layout)
         endpoints: list[tuple[int, int]] = []
@@ -233,9 +240,11 @@ class TracksViewer:
         return endpoints
 
     def _fixed_cells(self, instance: TracksInstance) -> set[tuple[int, int]]:
+        """Return cells that have any fixed visual background."""
         return set(self._fixed_cell_colors(instance))
 
     def _fixed_cell_colors(self, instance: TracksInstance) -> dict[tuple[int, int], tuple[int, int, int]]:
+        """Return the display color of each fixed cell."""
         colors: dict[tuple[int, int], tuple[int, int, int]] = {}
 
         # More specific fixed hints override the simpler fixed-used color.
@@ -252,6 +261,7 @@ class TracksViewer:
         return colors
 
     def _cell_center(self, cell: tuple[int, int], layout: ViewerLayout) -> tuple[int, int]:
+        """Return the pixel center of a grid cell."""
         row, col = cell
         return (
             layout.margin_left + col * layout.cell_size + layout.cell_size // 2,

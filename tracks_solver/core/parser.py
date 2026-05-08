@@ -103,6 +103,7 @@ def parse_tracks_instance_text(text: str, *, source: str = "<memory>") -> Tracks
 
 
 def _parse_integer(raw_value: str, *, field_name: str, source: str) -> int:
+    """Parse one integer field from the instance text."""
     if not raw_value:
         raise ValueError(f"{source}: field {field_name!r} cannot be empty")
 
@@ -115,6 +116,7 @@ def _parse_integer(raw_value: str, *, field_name: str, source: str) -> int:
 
 
 def _parse_integer_list(raw_value: str, *, field_name: str, source: str) -> list[int]:
+    """Parse a comma-separated list of integer clues."""
     if not raw_value:
         raise ValueError(f"{source}: field {field_name!r} cannot be empty")
 
@@ -128,6 +130,7 @@ def _parse_integer_list(raw_value: str, *, field_name: str, source: str) -> list
 
 
 def _parse_cell(raw_value: str, *, field_name: str, source: str) -> Cell:
+    """Parse one cell written as row,col."""
     parts = [part.strip() for part in raw_value.split(",")]
     if len(parts) != 2 or not all(parts):
         raise ValueError(
@@ -140,6 +143,7 @@ def _parse_cell(raw_value: str, *, field_name: str, source: str) -> Cell:
 
 
 def _parse_cell_list(raw_value: str, *, field_name: str, source: str) -> list[Cell]:
+    """Parse a semicolon-separated list of cells."""
     if not raw_value.strip():
         return []
 
@@ -153,6 +157,7 @@ def _parse_cell_list(raw_value: str, *, field_name: str, source: str) -> list[Ce
 
 
 def _parse_edge_list(raw_value: str, *, field_name: str, source: str) -> list[Edge]:
+    """Parse a semicolon-separated list of fixed edges."""
     if not raw_value.strip():
         return []
 
@@ -182,6 +187,7 @@ def _parse_pattern_map(
     field_name: str,
     source: str,
 ) -> dict[Cell, tuple[str, ...]]:
+    """Parse fixed local patterns written as cell:pattern entries."""
     if not raw_value.strip():
         return {}
 
