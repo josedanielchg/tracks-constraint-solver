@@ -170,4 +170,4 @@ The role is the same: read data, solve exactly, display outputs, and summarize r
   generation, solving, and result-table pipeline.
 - The Tracks solver remains an exact flow-based MILP implementation.
 
-Back to: [Defense Preparation](08_defense_prep.md)
+Back to: [Project Documentation](index.md)

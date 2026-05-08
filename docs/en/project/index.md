@@ -26,15 +26,14 @@ independent validator, ASCII rendering tools, a Pygame viewer, and dataset-gener
 
 ## Reading Paths
 
-### Quick Defense Path
+### Quick Presentation Path
 
-If the goal is to prepare an oral defense quickly, read in this order:
+If the goal is to present the project quickly, read in this order:
 
 1. [From Puzzle to Graph](01_from_puzzle_to_graph.md)
 2. [Mathematical Model](02_mathematical_model.md)
 3. [Benchmark Results](07_benchmark_results.md)
-4. [Defense Preparation](08_defense_prep.md)
-5. [Soutenance Commands](09_soutenance_commands.md)
+4. [Soutenance Commands](09_soutenance_commands.md)
 
 ### Full Technical Path
 
@@ -47,8 +46,7 @@ If the goal is to understand the full system from modeling to code:
 5. [UI, Generation, and Data](05_ui_generation_and_data.md)
 6. [Validation and Testing](06_validation_and_testing.md)
 7. [Benchmark Results](07_benchmark_results.md)
-8. [Defense Preparation](08_defense_prep.md)
-9. [Soutenance Commands](09_soutenance_commands.md)
+8. [Soutenance Commands](09_soutenance_commands.md)
 
 ### Code-First Path
 
@@ -71,7 +69,6 @@ If the reader already knows the mathematics and wants to navigate the implementa
 - [UI, Generation, and Data](05_ui_generation_and_data.md): file format, viewer, generators, and datasets
 - [Validation and Testing](06_validation_and_testing.md): why solver output can be trusted
 - [Benchmark Results](07_benchmark_results.md): what the generated experiments show in practice
-- [Defense Preparation](08_defense_prep.md): likely questions, ready answers, and speaking structure
 - [Soutenance Commands](09_soutenance_commands.md): copy-pasteable commands for the required demos
 
 Appendices:

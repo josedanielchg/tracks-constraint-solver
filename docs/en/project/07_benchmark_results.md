@@ -144,4 +144,4 @@ current CSV without manually recomputing the averages.
 - The exact-flow solver scales predictably across `5x5` to `16x16` boards.
 - Every reported solution is backed by an independent validator.
 
-Next: [Defense Preparation](08_defense_prep.md)
+Next: [Soutenance Commands](09_soutenance_commands.md)

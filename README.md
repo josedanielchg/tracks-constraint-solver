@@ -100,12 +100,12 @@ Start here:
 
 Suggested reading paths:
 
-**Quick defense path**
+**Quick presentation path**
 
 1. [From Puzzle to Graph](docs/en/project/01_from_puzzle_to_graph.md)
 2. [Mathematical Model](docs/en/project/02_mathematical_model.md)
 3. [Benchmark Results](docs/en/project/07_benchmark_results.md)
-4. [Defense Preparation](docs/en/project/08_defense_prep.md)
+4. [Soutenance Commands](docs/en/project/09_soutenance_commands.md)
 
 **Full technical path**
 
@@ -117,7 +117,7 @@ Suggested reading paths:
 6. [UI, Generation, and Data](docs/en/project/05_ui_generation_and_data.md)
 7. [Validation and Testing](docs/en/project/06_validation_and_testing.md)
 8. [Benchmark Results](docs/en/project/07_benchmark_results.md)
-9. [Defense Preparation](docs/en/project/08_defense_prep.md)
+9. [Soutenance Commands](docs/en/project/09_soutenance_commands.md)
 
 Related material:
 
