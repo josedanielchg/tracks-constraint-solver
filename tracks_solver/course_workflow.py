@@ -8,6 +8,7 @@ project workflow.
 
 from __future__ import annotations
 
+import argparse
 import csv
 from ast import literal_eval
 from pathlib import Path
@@ -20,7 +21,7 @@ from tracks_solver.core import (
     parse_tracks_instance,
 )
 from tracks_solver.generation import generate_tracks_instance, save_tracks_instance
-from tracks_solver.solver import solve_tracks_instance
+from tracks_solver.solver import SolverUnavailableError, solve_tracks_instance
 
 
 DEFAULT_INSTANCE_PATH = Path("data") / "tracks" / "manual" / "instanceTest.txt"
@@ -301,6 +302,235 @@ def _format_float(value: object) -> str:
     return str(value)
 
 
+def _parse_sizes(raw_sizes: str) -> list[tuple[int, int]]:
+    sizes: list[tuple[int, int]] = []
+    for raw_size in raw_sizes.split(","):
+        token = raw_size.strip().lower()
+        if not token:
+            continue
+        if "x" not in token:
+            raise argparse.ArgumentTypeError(
+                f"Invalid size {raw_size!r}; expected a format such as 5x5."
+            )
+        raw_rows, raw_cols = token.split("x", 1)
+        try:
+            rows = int(raw_rows)
+            cols = int(raw_cols)
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError(
+                f"Invalid size {raw_size!r}; rows and columns must be integers."
+            ) from exc
+        if rows <= 0 or cols <= 0:
+            raise argparse.ArgumentTypeError(
+                f"Invalid size {raw_size!r}; rows and columns must be positive."
+            )
+        sizes.append((rows, cols))
+
+    if not sizes:
+        raise argparse.ArgumentTypeError("At least one size must be provided.")
+    return sizes
+
+
+def _cmd_generate_instance(args: argparse.Namespace) -> int:
+    output_path = Path(args.output)
+    instance = generate_instance(
+        args.rows,
+        args.cols,
+        seed=args.seed,
+        min_path_length=args.min_path_length,
+        output_path=output_path,
+    )
+    print(f"instancePath = {output_path}")
+    print(f"rows = {instance.rows}")
+    print(f"cols = {instance.cols}")
+    print(f"start = {instance.start}")
+    print(f"end = {instance.end}")
+    return 0
+
+
+def _cmd_display_grid(args: argparse.Namespace) -> int:
+    display_grid(args.instance)
+    return 0
+
+
+def _cmd_solve_instance(args: argparse.Namespace) -> int:
+    try:
+        is_optimal, solve_time, solution = milp_solve(
+            args.instance,
+            time_limit=args.time_limit,
+            msg=args.solver_output,
+        )
+    except SolverUnavailableError as exc:
+        print(str(exc))
+        return 2
+
+    print(f"isOptimal = {is_optimal}")
+    print(f"solveTime = {solve_time}")
+    print(f"status = {solution.status!r}")
+    print(f"validationPassed = {solution.metadata.get('validation_passed', False)}")
+
+    if args.display_solution:
+        if solution.status in {"optimal", "feasible", "invalid"}:
+            display_solution(args.instance, solution)
+        else:
+            display_grid(args.instance)
+
+    return 0 if solution.status in {"optimal", "feasible"} else 1
+
+
+def _cmd_open_ui(args: argparse.Namespace) -> int:
+    try:
+        _, _, solution = milp_solve(
+            args.instance,
+            time_limit=args.time_limit,
+            msg=args.solver_output,
+        )
+    except SolverUnavailableError as exc:
+        print(str(exc))
+        return 2
+
+    from tracks_solver.ui import TracksViewer
+
+    shown_solution = solution if solution.status in {"optimal", "feasible", "invalid"} else None
+    viewer = TracksViewer()
+    viewer.run(read_input_file(args.instance), shown_solution)
+    return 0
+
+
+def _cmd_generate_dataset(args: argparse.Namespace) -> int:
+    generated = generate_data_set(
+        args.output_dir,
+        sizes=args.sizes,
+        count_per_size=args.count_per_size,
+        seed=args.seed,
+        force=args.force,
+    )
+    print(f"generatedCount = {len(generated)}")
+    for path in generated:
+        print(path)
+    return 0
+
+
+def _cmd_solve_dataset(args: argparse.Namespace) -> int:
+    try:
+        rows = solve_data_set(
+            args.input_dir,
+            result_dir=args.result_dir,
+            csv_output=args.csv_output,
+            time_limit=args.time_limit,
+            msg=args.solver_output,
+            force=args.force,
+        )
+    except SolverUnavailableError as exc:
+        print(str(exc))
+        return 2
+
+    optimal_count = sum(bool(row.get("isOptimal", False)) for row in rows)
+    print(f"instanceCount = {len(rows)}")
+    print(f"optimalCount = {optimal_count}")
+    print(f"resultDir = {Path(args.result_dir)}")
+    if args.csv_output is not None:
+        print(f"csvOutput = {Path(args.csv_output)}")
+    return 0
+
+
+def _cmd_results_table(args: argparse.Namespace) -> int:
+    output_path = results_array(args.output, result_dir=args.result_dir)
+    print(f"tablePath = {output_path}")
+    return 0
+
+
+def build_arg_parser() -> argparse.ArgumentParser:
+    """Build the course-workflow command-line parser."""
+    parser = argparse.ArgumentParser(
+        description="Course-compatible Tracks workflow commands.",
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    generate_instance_parser = subparsers.add_parser(
+        "generate-instance",
+        help="Create and save one generated Tracks instance.",
+    )
+    generate_instance_parser.add_argument("--rows", type=int, default=5)
+    generate_instance_parser.add_argument("--cols", type=int, default=5)
+    generate_instance_parser.add_argument("--seed", type=int, default=None)
+    generate_instance_parser.add_argument("--min-path-length", type=int, default=None)
+    generate_instance_parser.add_argument("--output", required=True)
+    generate_instance_parser.set_defaults(func=_cmd_generate_instance)
+
+    display_grid_parser = subparsers.add_parser(
+        "display-grid",
+        help="Print one unresolved instance in the terminal.",
+    )
+    display_grid_parser.add_argument("instance")
+    display_grid_parser.set_defaults(func=_cmd_display_grid)
+
+    solve_instance_parser = subparsers.add_parser(
+        "solve-instance",
+        help="Solve one instance with the exact MILP backend.",
+    )
+    solve_instance_parser.add_argument("instance")
+    solve_instance_parser.add_argument("--time-limit", type=float, default=None)
+    solve_instance_parser.add_argument("--solver-output", action="store_true")
+    solve_instance_parser.add_argument("--display-solution", action="store_true")
+    solve_instance_parser.set_defaults(func=_cmd_solve_instance)
+
+    open_ui_parser = subparsers.add_parser(
+        "open-ui",
+        help="Solve one instance and open it in the Pygame viewer.",
+        description="Solve one instance and open it in the Pygame viewer.",
+    )
+    open_ui_parser.add_argument("instance")
+    open_ui_parser.add_argument("--time-limit", type=float, default=None)
+    open_ui_parser.add_argument("--solver-output", action="store_true")
+    open_ui_parser.set_defaults(func=_cmd_open_ui)
+
+    generate_dataset_parser = subparsers.add_parser(
+        "generate-dataset",
+        help="Create several generated instances.",
+    )
+    generate_dataset_parser.add_argument("--output-dir", default=DEFAULT_DATASET_DIR)
+    generate_dataset_parser.add_argument(
+        "--sizes",
+        type=_parse_sizes,
+        default=_parse_sizes("4x4,5x5,6x6"),
+        help="Comma-separated board sizes, for example 5x5,6x6,7x7.",
+    )
+    generate_dataset_parser.add_argument("--count-per-size", type=int, default=3)
+    generate_dataset_parser.add_argument("--seed", type=int, default=0)
+    generate_dataset_parser.add_argument("--force", action="store_true")
+    generate_dataset_parser.set_defaults(func=_cmd_generate_dataset)
+
+    solve_dataset_parser = subparsers.add_parser(
+        "solve-dataset",
+        help="Solve all .txt instances in a directory and write result files.",
+    )
+    solve_dataset_parser.add_argument("input_dir")
+    solve_dataset_parser.add_argument("--result-dir", default=DEFAULT_RESULT_DIR)
+    solve_dataset_parser.add_argument("--csv-output", default=None)
+    solve_dataset_parser.add_argument("--time-limit", type=float, default=None)
+    solve_dataset_parser.add_argument("--solver-output", action="store_true")
+    solve_dataset_parser.add_argument("--force", action="store_true")
+    solve_dataset_parser.set_defaults(func=_cmd_solve_dataset)
+
+    results_table_parser = subparsers.add_parser(
+        "results-table",
+        help="Create a LaTeX table from course-style result files.",
+    )
+    results_table_parser.add_argument("--result-dir", default=DEFAULT_RESULT_DIR)
+    results_table_parser.add_argument("--output", default=DEFAULT_RESULTS_TABLE)
+    results_table_parser.set_defaults(func=_cmd_results_table)
+
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Run the course-compatible command-line interface."""
+    parser = build_arg_parser()
+    args = parser.parse_args(argv)
+    return int(args.func(args))
+
+
 readInputFile = read_input_file
 displayGrid = display_grid
 displaySolution = display_solution
@@ -312,6 +542,7 @@ resultsArray = results_array
 
 
 __all__ = [
+    "build_arg_parser",
     "cplexSolve",
     "cplex_solve",
     "displayGrid",
@@ -322,6 +553,7 @@ __all__ = [
     "generateInstance",
     "generate_data_set",
     "generate_instance",
+    "main",
     "milp_solve",
     "readInputFile",
     "read_input_file",
@@ -330,3 +562,7 @@ __all__ = [
     "solveDataSet",
     "solve_data_set",
 ]
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
