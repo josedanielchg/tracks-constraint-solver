@@ -220,7 +220,7 @@ def results_array(
     for row in rows:
         instance_name = str(row.get("instance_name", "")).replace("_", r"\_")
         solve_time = _format_float(row.get("solveTime", ""))
-        optimal = r"$\times$" if bool(row.get("isOptimal", False)) else "-"
+        optimal = "Yes" if bool(row.get("isOptimal", False)) else "No"
         lines.append(
             f"{instance_name} & {row.get('rows', '-')} & {row.get('cols', '-')} "
             f"& {solve_time} & {optimal} \\\\"

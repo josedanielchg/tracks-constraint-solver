@@ -87,6 +87,7 @@ def test_course_dataset_workflow_writes_result_files_and_table(tmp_path: Path) -
     assert "isOptimal =" in first_result
     assert "\\begin{tabular}" in table_text
     assert "instance\\_t3x3\\_1.txt" in table_text
+    assert "Yes" in table_text
 
 
 def test_course_cli_generates_displays_and_solves_one_instance(tmp_path: Path) -> None:
@@ -168,7 +169,9 @@ def test_course_cli_dataset_and_results_table(tmp_path: Path) -> None:
     assert "solveTime =" in next(result_dir.glob("*.txt")).read_text(encoding="utf-8")
     assert "isOptimal =" in next(result_dir.glob("*.txt")).read_text(encoding="utf-8")
     assert table.returncode == 0, table.stderr
-    assert "\\begin{tabular}" in table_path.read_text(encoding="utf-8")
+    table_text = table_path.read_text(encoding="utf-8")
+    assert "\\begin{tabular}" in table_text
+    assert "Yes" in table_text
 
 
 def test_course_cli_open_ui_help_is_available() -> None:
