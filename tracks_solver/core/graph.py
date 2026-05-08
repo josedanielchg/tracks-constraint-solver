@@ -24,15 +24,18 @@ class GridGraph:
 
 def build_grid_graph(instance: TracksInstance) -> GridGraph:
     """Build the grid graph structures used by the mathematical model."""
+    # Every grid cell becomes one vertex of the graph.
     cells = tuple(
         (row, col)
         for row in range(instance.rows)
         for col in range(instance.cols)
     )
 
+    # These dictionaries are filled while the edge list is created.
     neighbors: dict[Cell, list[Cell]] = {cell: [] for cell in cells}
     incident_edges: dict[Cell, list[Edge]] = {cell: [] for cell in cells}
 
+    # Horizontal and vertical edges are separated to match the report notation.
     horizontal_edges = tuple(
         canonical_edge((row, col), (row, col + 1))
         for row in range(instance.rows)
@@ -45,6 +48,7 @@ def build_grid_graph(instance: TracksInstance) -> GridGraph:
     )
     edges = horizontal_edges + vertical_edges
 
+    # Neighbors and incident edges are the graph view used by degrees and flow.
     for first, second in edges:
         neighbors[first].append(second)
         neighbors[second].append(first)
@@ -59,6 +63,7 @@ def build_grid_graph(instance: TracksInstance) -> GridGraph:
         cell: tuple(sorted(cell_edges))
         for cell, cell_edges in incident_edges.items()
     }
+    # Flow variables use both directions of every undirected edge.
     arcs = tuple(
         arc
         for first, second in edges

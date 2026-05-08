@@ -87,6 +87,7 @@ class PlayerBoardState:
     @classmethod
     def from_instance(cls, instance: TracksInstance) -> "PlayerBoardState":
         patterns: dict[Cell, tuple[Direction, ...]] = {}
+        # Start the player board with every fixed requirement already visible.
         for cell in sorted(instance.fixed_patterns):
             patterns[cell] = instance.fixed_patterns[cell]
         for cell in sorted(instance.fixed_used):
@@ -128,6 +129,7 @@ class PlayerBoardState:
         used_cells = {cell for cell, pattern in self.patterns.items() if pattern}
         selected_edges: set[Edge] = set()
 
+        # Two adjacent pieces connect only when both pieces point at each other.
         for cell, pattern in self.patterns.items():
             if not pattern:
                 continue
@@ -197,6 +199,7 @@ class TracksGame:
         surface.fill((248, 248, 248))
         self.buttons = []
 
+        # The game has only two screens: menu and active board.
         if self.mode == "board" and self.instance is not None and self.player_state is not None:
             self._draw_board_screen(surface)
         else:
@@ -240,6 +243,7 @@ class TracksGame:
         font = pygame.font.Font(None, 30)
         small_font = pygame.font.Font(None, 24)
 
+        # The home screen keeps generation and map loading as separate panels.
         new_game_panel, load_map_panel = self._home_panel_rects()
 
         self._draw_centered_text(surface, title_font, "Tracks", (self.width // 2, 62))
@@ -298,6 +302,7 @@ class TracksGame:
         assert self.instance is not None
         assert self.player_state is not None
 
+        # The board can show either the exact solution or the player's current attempt.
         if self.show_solution and self.solution is not None:
             board_surface = self.viewer.render_to_surface(self.instance, self.solution)
         else:
@@ -319,6 +324,7 @@ class TracksGame:
             self._draw_wrapped_text(surface, small_font, self.status_message, (self.panel_left, 650), 300)
 
     def _draw_legend(self, surface: pygame.Surface, font: pygame.font.Font, x: int, y: int) -> None:
+        # Legend colors explain what each fixed hint means during play.
         colors = {
             "fixed_used": self.viewer.fixed_used_cell_color,
             "fixed_edges": self.viewer.fixed_edge_cell_color,
@@ -357,6 +363,7 @@ class TracksGame:
         self.viewer._draw_terminals(surface, player_state.instance, layout, font)
 
     def _dispatch_action(self, action: str) -> None:
+        # Menu and board buttons are routed through one small dispatcher.
         if action == "cycle_size":
             self.size_index = (self.size_index + 1) % len(GRID_SIZE_OPTIONS)
         elif action == "cycle_difficulty":
@@ -383,6 +390,7 @@ class TracksGame:
         params = difficulty_generation_params(rows, cols, difficulty)
         seed = random.randint(0, 10**9)
         try:
+            # The UI reuses the same difficulty profile as the benchmark generator.
             instance = generate_tracks_instance(rows, cols, seed=seed, **params)
         except RuntimeError:
             instance = generate_tracks_instance(rows, cols, seed=seed)
@@ -412,6 +420,7 @@ class TracksGame:
     def _show_exact_solution(self) -> None:
         assert self.instance is not None
         if self.solution is None:
+            # Large loaded boards get a longer limit because they can be harder.
             time_limit = 30 if self.instance.rows * self.instance.cols <= 100 else 120
             try:
                 candidate = solve_tracks_instance(self.instance, time_limit=time_limit, msg=False)
@@ -518,6 +527,7 @@ def discover_map_files() -> list[Path]:
 
 def allowed_patterns_for_cell(instance: TracksInstance, cell: Cell) -> list[tuple[Direction, ...]]:
     """Return local patterns allowed by fixed hints for one cell."""
+    # Fixed hints reduce the list of patterns the player can cycle through.
     if cell in instance.fixed_empty:
         return [EMPTY_PATTERN]
     if cell in instance.fixed_patterns:

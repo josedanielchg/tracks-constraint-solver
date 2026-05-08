@@ -23,6 +23,7 @@ def generate_dataset(
     target_dir = Path(output_dir)
     target_dir.mkdir(parents=True, exist_ok=True)
 
+    # Each file gets its own seed so the dataset is reproducible but varied.
     written_files: list[Path] = []
     for index in range(1, count + 1):
         instance = generate_tracks_instance(

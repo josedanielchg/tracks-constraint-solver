@@ -32,6 +32,7 @@ DEFAULT_RESULTS_TABLE = Path("res") / "tracks" / "array.tex"
 
 def read_input_file(path: str | Path = DEFAULT_INSTANCE_PATH) -> TracksInstance:
     """Read one Tracks instance from ``path``."""
+    # Course wrapper around the project parser.
     return parse_tracks_instance(path)
 
 
@@ -66,6 +67,7 @@ def milp_solve(
     optimal feasible solution was obtained, the solving time, and the solution
     object itself.
     """
+    # This keeps the course-style return shape: optimal flag, time, solution.
     normalized_instance = _ensure_instance(instance)
     solution = solve_tracks_instance(normalized_instance, time_limit=time_limit, msg=msg)
     is_optimal = solution.status == "optimal"
@@ -118,6 +120,7 @@ def generate_data_set(
     target_dir = Path(output_dir)
     target_dir.mkdir(parents=True, exist_ok=True)
 
+    # Course datasets use predictable file names for result-table generation.
     written: list[Path] = []
     serial = 1
     for rows, cols in sizes:
@@ -159,6 +162,7 @@ def solve_data_set(
     for instance_path in instance_paths:
         output_path = output_dir / instance_path.name
         if output_path.exists() and not force:
+            # Existing result files can be reused during soutenance demos.
             row = _read_result_file(output_path)
             row["instance_name"] = instance_path.name
             rows.append(row)
@@ -180,6 +184,7 @@ def solve_data_set(
             "numUsedCells": len(solution.used_cells),
             "validationPassed": solution.metadata.get("validation_passed", False),
         }
+        # The text result file follows the format expected by the course examples.
         _write_result_file(output_path, row, solution)
         rows.append(row)
 
@@ -195,6 +200,7 @@ def results_array(
     result_dir: str | Path = DEFAULT_RESULT_DIR,
 ) -> Path:
     """Create a small LaTeX table summarizing result files."""
+    # This produces a standalone LaTeX table for quick inclusion or compilation.
     source_dir = Path(result_dir)
     output_path = Path(output_file)
     output_path.parent.mkdir(parents=True, exist_ok=True)

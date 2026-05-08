@@ -13,6 +13,7 @@ def main() -> None:
     parser.add_argument("--format", choices=("text", "json"), default="text")
     args = parser.parse_args()
 
+    # The summary keeps report numbers consistent with the benchmark CSV.
     summary = benchmark_summary(load_rows())
     if args.format == "json":
         print(json.dumps(summary, indent=2, sort_keys=True))

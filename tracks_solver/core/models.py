@@ -42,6 +42,7 @@ def canonical_edge(first: Cell, second: Cell) -> Edge:
 
 def normalize_local_pattern(pattern: str | Iterable[str]) -> tuple[Direction, ...]:
     """Return a normalized 1-edge or 2-edge local track pattern."""
+    # Patterns are stored as directions so fixed shapes can be checked later.
     if isinstance(pattern, str):
         token = pattern.strip().upper().replace(" ", "")
         directions = _PATTERN_ALIASES.get(token, tuple(token))
@@ -107,6 +108,7 @@ class TracksInstance:
     fixed_patterns: dict[Cell, tuple[Direction, ...]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
+        # Normalize user-provided containers into immutable, deterministic data.
         row_clues = tuple(int(value) for value in self.row_clues)
         col_clues = tuple(int(value) for value in self.col_clues)
         fixed_used = {tuple(cell) for cell in self.fixed_used}
@@ -143,6 +145,7 @@ class TracksInstance:
         if sum(row_clues) != sum(col_clues):
             raise ValueError("row clues and column clues must have the same total")
 
+        # Fixed cells are checked before they are passed to the solver.
         for cell in fixed_used | fixed_empty:
             if not cell_in_bounds(cell, self.rows, self.cols):
                 raise ValueError(f"fixed cell {cell} must lie inside the grid")
@@ -152,6 +155,7 @@ class TracksInstance:
 
         fixed_used.update({self.start, self.end})
 
+        # A cell cannot be both required and blocked.
         if fixed_used & fixed_empty:
             raise ValueError("fixed used cells and fixed empty cells must be disjoint")
 
@@ -170,6 +174,7 @@ class TracksInstance:
 
         pattern_edges_by_cell: dict[Cell, frozenset[Edge]] = {}
         for cell, pattern in fixed_patterns.items():
+            # Fixed patterns are stronger than fixed edges because they define the whole local shape.
             if not cell_in_bounds(cell, self.rows, self.cols):
                 raise ValueError(f"fixed pattern cell {cell} must lie inside the grid")
             if cell in fixed_empty:
@@ -212,6 +217,7 @@ class TracksInstance:
 
         for cell, implied_edges in pattern_edges_by_cell.items():
             for edge in implied_edges:
+                # Two neighboring fixed patterns must agree on their shared connection.
                 neighbor = edge[1] if edge[0] == cell else edge[0]
                 neighbor_pattern_edges = pattern_edges_by_cell.get(neighbor)
                 if neighbor_pattern_edges is not None and edge not in neighbor_pattern_edges:

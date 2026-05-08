@@ -12,6 +12,7 @@ def main() -> None:
     rows = [row for row in load_rows() if row.get("size") == "5x5"]
     fig, ax = plt.subplots(figsize=(6.8, 3.4))
 
+    # Step curves show how many instances are solved before each time threshold.
     for difficulty in DIFFICULTIES:
         solve_times = sorted(
             as_float(row["solve_time"])

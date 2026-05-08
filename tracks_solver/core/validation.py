@@ -29,6 +29,7 @@ class ValidationResult:
 
 def validate_solution(instance: TracksInstance, solution: TracksSolution) -> ValidationResult:
     """Validate a candidate solution against the Tracks rules."""
+    # The validator rebuilds the graph instead of trusting the solver output.
     graph = build_grid_graph(instance)
     known_cells = set(graph.cells)
     known_edges = set(graph.edges)
@@ -48,6 +49,7 @@ def validate_solution(instance: TracksInstance, solution: TracksSolution) -> Val
     degrees = {cell: 0 for cell in graph.cells}
     adjacency = {cell: set() for cell in graph.cells}
 
+    # Degrees and adjacency are reconstructed from the selected edges.
     for edge in selected_edges:
         if edge not in known_edges:
             continue
@@ -66,6 +68,7 @@ def validate_solution(instance: TracksInstance, solution: TracksSolution) -> Val
     if instance.end not in used_cells:
         errors.append("The end terminal must be used")
 
+    # Row and column clues count used cells, not edge segments.
     for row in range(instance.rows):
         used_in_row = sum((row, col) in used_cells for col in range(instance.cols))
         expected = instance.row_clues[row]
@@ -82,6 +85,7 @@ def validate_solution(instance: TracksInstance, solution: TracksSolution) -> Val
                 f"Column {col} uses {used_in_col} cells, but the clue requires {expected}"
             )
 
+    # Degree checks enforce the local path shape and reject branches.
     for cell in graph.cells:
         degree = degrees[cell]
         if cell == instance.start or cell == instance.end:
@@ -117,6 +121,7 @@ def validate_solution(instance: TracksInstance, solution: TracksSolution) -> Val
                 f"expected incident edges {sorted(expected_edges)}, got {sorted(actual_edges)}"
             )
 
+    # A BFS from the start detects disconnected loops or detached pieces.
     if instance.start in used_cells and instance.end in used_cells:
         visited = _reachable_used_cells(instance.start, adjacency, used_cells)
         if visited != used_cells:
@@ -126,6 +131,7 @@ def validate_solution(instance: TracksInstance, solution: TracksSolution) -> Val
                 f"unreachable used cells: {missing}"
             )
 
+    # A simple path with k used cells must have exactly k - 1 selected edges.
     if used_cells and len(selected_edges) != len(used_cells) - 1:
         errors.append(
             "A valid single path must satisfy |selected_edges| = |used_cells| - 1, "

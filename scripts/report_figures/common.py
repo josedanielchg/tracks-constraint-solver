@@ -50,6 +50,7 @@ def grouped(rows: Iterable[dict[str, str]], key: str) -> dict[str, list[dict[str
 
 def mean_solve_time(rows: Iterable[dict[str, str]]) -> float:
     """Return average solve time over rows with numeric solve times."""
+    # Failed generations are excluded because they are not solver observations.
     values = [effective_solve_time(row) for row in rows if row.get("generation_status") != "error"]
     return mean(values) if values else 0.0
 
@@ -71,6 +72,7 @@ def mean_numeric(rows: Iterable[dict[str, str]], key: str) -> float:
 def benchmark_summary(rows: Iterable[dict[str, str]]) -> dict[str, object]:
     """Compute one aggregate summary over the generated benchmark CSV."""
     row_list = list(rows)
+    # The summary is reused by the README, docs, and report text.
     valid_rows = [row for row in row_list if row.get("generation_status") != "error"]
     hard_rows = [row for row in valid_rows if row.get("difficulty") == "Hard"]
 
@@ -104,6 +106,7 @@ def configure_matplotlib() -> None:
     """Use a deterministic non-interactive plot style."""
     import matplotlib
 
+    # Agg lets the scripts run without opening a GUI window.
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 

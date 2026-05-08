@@ -26,6 +26,7 @@ def generate_random_path(
 ) -> list[tuple[int, int]]:
     """Generate a random simple path inside a grid."""
     rng = random.Random(seed)
+    # By default, generated boards connect the top-left and bottom-right cells.
     start = start or (0, 0)
     end = end or (rows - 1, cols - 1)
 
@@ -41,9 +42,11 @@ def generate_random_path(
     if min_length > rows * cols:
         raise ValueError("min_length cannot exceed the number of cells in the grid")
 
+    # Short paths can be generated directly as randomized Manhattan routes.
     if min_length == shortest_possible:
         return _generate_manhattan_path(start, end, rng)
 
+    # Long corner-to-corner paths are easier to build with a serpentine shape.
     if start == (0, 0) and end == (rows - 1, cols - 1) and min_length > shortest_possible:
         return _generate_serpentine_path(rows, cols, rng, min_length)
 
@@ -56,9 +59,11 @@ def generate_random_path(
         if current == end:
             return len(path) >= min_length
 
+        # The backtracking search keeps the path simple by avoiding visited cells.
         candidates = [candidate for candidate in neighbor_cells(current) if candidate not in visited]
         rng.shuffle(candidates)
 
+        # Avoid finishing too early when the requested path length is longer.
         if len(path) < min_length and end in candidates and len(candidates) > 1:
             candidates.remove(end)
             candidates.append(end)
@@ -86,6 +91,7 @@ def _generate_manhattan_path(
     rng: random.Random,
 ) -> list[tuple[int, int]]:
     """Generate a randomized shortest monotone path between two cells."""
+    # The moves are shuffled, but every move still goes closer to the end cell.
     row_delta = end[0] - start[0]
     col_delta = end[1] - start[1]
     row_step = 1 if row_delta >= 0 else -1
@@ -108,6 +114,7 @@ def _generate_serpentine_path(
     min_length: int,
 ) -> list[tuple[int, int]]:
     """Generate a long simple path from the top-left to the bottom-right cell."""
+    # We choose how many rows or columns to sweep before going to the end.
     row_candidates = [
         swept_rows
         for swept_rows in range(1, rows + 1, 2)
@@ -171,6 +178,7 @@ def build_instance_from_path(
         if not are_orthogonally_adjacent(first, second):
             raise ValueError("Consecutive path cells must be orthogonally adjacent")
 
+    # Clues are derived from the path, so the generated instance is solvable.
     used_cells = set(path)
     row_clues = tuple(sum((row, col) in used_cells for col in range(cols)) for row in range(rows))
     col_clues = tuple(sum((row, col) in used_cells for row in range(rows)) for col in range(cols))
@@ -200,6 +208,7 @@ def generate_tracks_instance(
 ) -> TracksInstance:
     """Generate a Tracks instance with at least one valid solution."""
     rng = random.Random(seed)
+    # Generate the hidden valid route first, then turn it into puzzle data.
     path = generate_random_path(
         rows,
         cols,
@@ -212,6 +221,7 @@ def generate_tracks_instance(
     internal_cells = [cell for cell in path[1:-1]]
     path_edges = [canonical_edge(first, second) for first, second in zip(path, path[1:])]
 
+    # Hints reveal part of the hidden route without changing the solution path.
     hint_used = set(rng.sample(internal_cells, k=min(fixed_used_hints, len(internal_cells))))
     hint_edges = set(rng.sample(path_edges, k=min(fixed_edge_hints, len(path_edges))))
 
@@ -230,18 +240,21 @@ def difficulty_generation_params(rows: int, cols: int, difficulty: str) -> dict[
     area = rows * cols
     shortest_path_length = rows + cols - 1
 
+    # Easy boards use a short route and expose more fixed hints.
     if normalized == "easy":
         return {
             "min_path_length": shortest_path_length,
             "fixed_used_hints": max(1, area // 8),
             "fixed_edge_hints": max(1, area // 10),
         }
+    # Medium boards ask for a longer path and reveal fewer hints.
     if normalized == "medium":
         return {
             "min_path_length": max(shortest_path_length, area // 3),
             "fixed_used_hints": max(1, area // 16),
             "fixed_edge_hints": max(1, area // 18),
         }
+    # Hard boards use the longest routes and the fewest hints.
     if normalized == "hard":
         return {
             "min_path_length": max(shortest_path_length, area // 2),
@@ -253,6 +266,7 @@ def difficulty_generation_params(rows: int, cols: int, difficulty: str) -> dict[
 
 def serialize_tracks_instance(instance: TracksInstance) -> str:
     """Serialize a Tracks instance using the parser format."""
+    # The text format is simple on purpose so maps can be edited by hand.
     lines = [
         f"rows={instance.rows}",
         f"cols={instance.cols}",

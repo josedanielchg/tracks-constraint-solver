@@ -30,6 +30,7 @@ def solve_dataset(
     rows: list[dict[str, object]] = []
     for instance_path in instance_paths:
         try:
+            # Each instance is solved independently so one failure does not stop the dataset.
             instance = parse_tracks_instance(instance_path)
             solution = solve_tracks_instance(instance, time_limit=time_limit, msg=msg)
             row = {

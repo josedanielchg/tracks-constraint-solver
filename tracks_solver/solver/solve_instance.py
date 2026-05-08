@@ -16,6 +16,7 @@ def solve_tracks_file(
     msg: bool = False,
 ) -> tuple[TracksInstance, TracksSolution]:
     """Parse a Tracks instance file and solve it."""
+    # This helper is the shortest file-to-solution path used by scripts.
     instance = parse_tracks_instance(path)
     solution = solve_tracks_instance(instance, time_limit=time_limit, msg=msg)
     return instance, solution

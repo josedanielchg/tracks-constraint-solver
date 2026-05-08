@@ -26,6 +26,7 @@ def parse_tracks_instance_text(text: str, *, source: str = "<memory>") -> Tracks
     """Parse a Tracks instance from its textual representation."""
     raw_fields: dict[str, str] = {}
 
+    # Instance files are intentionally simple key=value documents.
     for line_number, raw_line in enumerate(text.splitlines(), start=1):
         line = raw_line.split("#", 1)[0].strip()
         if not line:
@@ -45,6 +46,7 @@ def parse_tracks_instance_text(text: str, *, source: str = "<memory>") -> Tracks
             )
         raw_fields[key] = value
 
+    # These fields are the minimum data needed to define a Tracks board.
     required_keys = {"rows", "cols", "start", "end", "row_clues", "col_clues"}
     missing_keys = sorted(required_keys - raw_fields.keys())
     if missing_keys:
@@ -62,6 +64,7 @@ def parse_tracks_instance_text(text: str, *, source: str = "<memory>") -> Tracks
         col_clues = tuple(
             _parse_integer_list(raw_fields["col_clues"], field_name="col_clues", source=source)
         )
+        # Optional fields encode the fixed hints that appear in some puzzles.
         fixed_used = frozenset(
             _parse_cell_list(raw_fields.get("fixed_used", ""), field_name="fixed_used", source=source)
         )
@@ -82,6 +85,7 @@ def parse_tracks_instance_text(text: str, *, source: str = "<memory>") -> Tracks
         raise TracksInstanceFormatError(str(exc)) from exc
 
     try:
+        # TracksInstance performs the final consistency checks.
         return TracksInstance(
             rows=rows,
             cols=cols,

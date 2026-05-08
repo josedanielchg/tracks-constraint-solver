@@ -42,6 +42,7 @@ class TracksViewer:
         solution: TracksSolution | None = None,
     ) -> pygame.Surface:
         """Render the current state into an off-screen surface."""
+        # Rendering to a surface makes the viewer easy to test without opening a window.
         pygame.font.init()
         surface = pygame.Surface((self.width, self.height))
         surface.fill(self.background_color)
@@ -113,6 +114,7 @@ class TracksViewer:
         )
 
     def _draw_grid(self, surface: pygame.Surface, instance: TracksInstance, layout: ViewerLayout) -> None:
+        # Fixed hints are shaded before drawing the grid lines.
         for (row, col), color in self._fixed_cell_colors(instance).items():
             cell_rect = pygame.Rect(
                 layout.margin_left + col * layout.cell_size + 1,
@@ -187,6 +189,7 @@ class TracksViewer:
         solution: TracksSolution,
         layout: ViewerLayout,
     ) -> None:
+        # Tracks are drawn from the center of a cell to the selected neighboring cells.
         for cell in solution.used_cells:
             center = self._cell_center(cell, layout)
             for endpoint in self._track_endpoints(cell, solution, layout):
@@ -235,6 +238,7 @@ class TracksViewer:
     def _fixed_cell_colors(self, instance: TracksInstance) -> dict[tuple[int, int], tuple[int, int, int]]:
         colors: dict[tuple[int, int], tuple[int, int, int]] = {}
 
+        # More specific fixed hints override the simpler fixed-used color.
         for cell in instance.fixed_used:
             colors[cell] = self.fixed_used_cell_color
         for cell in instance.fixed_empty:

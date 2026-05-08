@@ -7,6 +7,7 @@ from .models import Cell, TracksInstance, TracksSolution
 
 def format_tracks_board(instance: TracksInstance, solution: TracksSolution | None = None) -> str:
     """Return an ASCII view of a Tracks instance and, optionally, a solution."""
+    # Without a solution, only clues and terminals are shown.
     used_cells = set(solution.used_cells) if solution is not None else set()
     selected_edges = set(solution.selected_edges) if solution is not None else set()
 
@@ -43,6 +44,7 @@ def _cell_symbol(
     if cell not in used_cells:
         return "."
 
+    # The character depends on the selected edges touching this cell.
     directions = _selected_directions(cell, selected_edges)
     if directions == {"L", "R"}:
         return "-"

@@ -52,6 +52,7 @@ def main(argv: list[str] | None = None) -> None:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames, extrasaction="ignore")
         writer.writeheader()
 
+        # The benchmark grid is size x difficulty x attempt.
         for rows_count, cols_count in parse_sizes(args.sizes):
             for difficulty in parse_difficulties(args.difficulties):
                 for attempt in range(1, args.attempts + 1):
@@ -101,6 +102,7 @@ def collect_one_row(
     generation_status = "generated"
     generation_error = ""
     try:
+        # Existing generated files can be reused to keep experiments reproducible.
         if instance_path.exists() and not force:
             instance = parse_tracks_instance(instance_path)
             generation_time = ""
@@ -146,6 +148,7 @@ def collect_one_row(
     row.update(instance_metadata(instance))
 
     try:
+        # Every generated row is solved with the exact flow MILP.
         solution = solve_tracks_instance(instance, time_limit=solve_time_limit, msg=solver_output)
     except Exception as exc:  # pragma: no cover - robustness path for long benchmark runs
         row.update(
@@ -185,6 +188,7 @@ def generate_with_retries(
 ) -> TracksInstance:
     params = difficulty_generation_params(rows, cols, difficulty)
     last_error: Exception | None = None
+    # Some random seeds can fail, so the benchmark retries deterministically.
     for retry in range(max_generation_retries):
         try:
             return generate_tracks_instance(rows, cols, seed=seed + retry, **params)

@@ -20,6 +20,7 @@ def main() -> None:
     generation_times_ms = [mean_numeric(groups[size], "generation_time") * 1000.0 for size in sizes]
     solve_times = [mean_solve_time(groups[size]) for size in sizes]
 
+    # Two axes are used because generation is measured in milliseconds.
     fig, ax = plt.subplots(figsize=(7.0, 3.4))
     ax2 = ax.twinx()
 

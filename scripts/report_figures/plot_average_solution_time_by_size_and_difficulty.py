@@ -12,6 +12,7 @@ def main() -> None:
     rows = [row for row in load_rows() if row.get("generation_status") != "error"]
     fig, ax = plt.subplots(figsize=(7.2, 3.6))
 
+    # Each difficulty becomes one curve across board sizes.
     for difficulty in DIFFICULTIES:
         difficulty_rows = [row for row in rows if row.get("difficulty") == difficulty]
         groups = grouped(difficulty_rows, "rows")

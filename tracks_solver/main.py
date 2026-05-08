@@ -29,6 +29,7 @@ def build_status_report() -> str:
 
 def main(argv: list[str] | None = None) -> None:
     """Print the setup report or solve an instance from the command line."""
+    # This entrypoint is for normal use: environment check, solve, viewer, or playable UI.
     parser = argparse.ArgumentParser(description="Tracks solver bootstrap entrypoint.")
     parser.add_argument("instance", nargs="?", help="Path to a Tracks instance file.")
     parser.add_argument("--ui", action="store_true", help="Open the Pygame viewer.")
@@ -47,6 +48,7 @@ def main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
 
     if args.play:
+        # Playable mode is optional and stays separate from the exact solver logic.
         game = TracksGame()
         if args.instance:
             game.start_board(parse_tracks_instance(args.instance))
@@ -61,6 +63,7 @@ def main(argv: list[str] | None = None) -> None:
     print(build_status_report())
 
     try:
+        # Solving from the CLI uses the same MILP function as the rest of the project.
         solution = solve_tracks_instance(
             instance,
             time_limit=args.time_limit,
