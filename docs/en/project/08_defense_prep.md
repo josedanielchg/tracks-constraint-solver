@@ -194,3 +194,7 @@ For quick lookup of terminology and concrete formats, use the appendices:
 - [Glossary](appendices/glossary.md)
 - [File Format](appendices/file_format.md)
 - [Model-to-Code Traceability](appendices/model_to_code_traceability.md)
+
+For the exact command sequence to run during the oral defense, use:
+
+- [Soutenance Commands](09_soutenance_commands.md)

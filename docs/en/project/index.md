@@ -34,6 +34,7 @@ If the goal is to prepare an oral defense quickly, read in this order:
 2. [Mathematical Model](02_mathematical_model.md)
 3. [Benchmark Results](07_benchmark_results.md)
 4. [Defense Preparation](08_defense_prep.md)
+5. [Soutenance Commands](09_soutenance_commands.md)
 
 ### Full Technical Path
 
@@ -47,6 +48,7 @@ If the goal is to understand the full system from modeling to code:
 6. [Validation and Testing](06_validation_and_testing.md)
 7. [Benchmark Results](07_benchmark_results.md)
 8. [Defense Preparation](08_defense_prep.md)
+9. [Soutenance Commands](09_soutenance_commands.md)
 
 ### Code-First Path
 
@@ -58,6 +60,7 @@ If the reader already knows the mathematics and wants to navigate the implementa
 4. [Validation and Testing](06_validation_and_testing.md)
 5. [Benchmark Results](07_benchmark_results.md)
 6. [Model-to-Code Traceability](appendices/model_to_code_traceability.md)
+7. [Soutenance Commands](09_soutenance_commands.md)
 
 ## Documentation Map
 
@@ -69,6 +72,7 @@ If the reader already knows the mathematics and wants to navigate the implementa
 - [Validation and Testing](06_validation_and_testing.md): why solver output can be trusted
 - [Benchmark Results](07_benchmark_results.md): what the generated experiments show in practice
 - [Defense Preparation](08_defense_prep.md): likely questions, ready answers, and speaking structure
+- [Soutenance Commands](09_soutenance_commands.md): copy-pasteable commands for the required demos
 
 Appendices:
 

@@ -1,5 +1,60 @@
 # Tracks Constraint Solver
 
+## Soutenance Commands
+
+These commands cover the course-required demonstrations: instance generation, terminal display,
+UI display, solving several instances, and formatting results as a LaTeX table.
+
+Create one instance:
+
+```powershell
+python -m tracks_solver.course_workflow generate-instance --rows 5 --cols 5 --seed 203 --output data/tracks/generated/soutenance_5x5.txt
+```
+
+Display the unresolved instance in the terminal:
+
+```powershell
+python -m tracks_solver.course_workflow display-grid data/tracks/generated/soutenance_5x5.txt
+```
+
+Solve one instance and display the solved ASCII grid:
+
+```powershell
+python -m tracks_solver.course_workflow solve-instance data/tracks/generated/soutenance_5x5.txt --time-limit 60 --display-solution
+```
+
+Open the solved instance in the Pygame UI:
+
+```powershell
+python -m tracks_solver.course_workflow open-ui data/tracks/generated/soutenance_5x5.txt --time-limit 60
+```
+
+Generate several instances:
+
+```powershell
+python -m tracks_solver.course_workflow generate-dataset --output-dir data/tracks/generated/soutenance --sizes 5x5,6x6,7x7 --count-per-size 2 --seed 203 --force
+```
+
+Solve several instances and write result files:
+
+```powershell
+python -m tracks_solver.course_workflow solve-dataset data/tracks/generated/soutenance --result-dir res/tracks/cbc/soutenance --csv-output res/tracks/cbc/soutenance_summary.csv --time-limit 60 --force
+```
+
+Format the results as a LaTeX table:
+
+```powershell
+python -m tracks_solver.course_workflow results-table --result-dir res/tracks/cbc/soutenance --output res/tracks/array_soutenance.tex
+```
+
+Optional playable mode, separate from the course-required sequence:
+
+```powershell
+python -m tracks_solver.main --play
+```
+
+Detailed explanation: [Soutenance Commands](docs/en/project/09_soutenance_commands.md)
+
 A graph-based and optimization-oriented solver for the **Tracks** logic puzzle, implemented in
 **Python** with a lightweight **Pygame** interface.
 
